@@ -10,5 +10,9 @@
 <script>
 export default {
   //middleware: 'scan'
+  beforeCreate() {
+    //We can use a middleware to set the page title. Might improve loading of title
+    this.$store.commit('setPageTitle', 'Home');
+  }
 }
 </script>

@@ -4,7 +4,7 @@
     <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);"></i>
     <div class="hero-body">
       <h1 id="title">
-          Select Station
+          {{$store.state.pageName}}
       </h1>
     </div>
   </section>
@@ -54,6 +54,7 @@ html {
   position: fixed;
   margin-left: 10px;
   margin-top: 3px;
+  cursor: pointer;
 }
 
 .hero {

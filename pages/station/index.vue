@@ -3,16 +3,20 @@
   <section class="mySection container columns is-multiline">
 
     <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
-      <img :src="`${station.imgLoc}`" height="228" width="228" />
+      <img :src="`${station.imgLoc}`"/>
       <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
       <a class="button is-danger is-rounded is-medium">{{station.name}}</a>
     </div>
+
   </section>
 </div>
 </template>
 
 <script>
 export default {
+  beforeCreate() {
+    this.$store.commit('setPageTitle', 'Select Station');
+  },
   data() {
     return {
       dataList: [
@@ -75,7 +79,7 @@ export default {
 
 img {
   margin-bottom: 20px;
-  z-index: 1;
+  /* z-index: 1; */
   height: 200px;
 }
 

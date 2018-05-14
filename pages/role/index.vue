@@ -1,9 +1,10 @@
 <template>
-<section class="main-container">
-  <div class="level">
-    <p id="text"> I want to <br /> become a(n): </p>
+<div>
+  <section class="container">
+    <div class="level">
+      <p id="text"> I want to <br /> become a(n): </p>
       <div class="level-item">
-        <img src="~/static/pic_pilot.png" height="118" width="118" />
+        <img src="~/static/pic_pilot.png" height="108" width="108" />
         <div><a class="button is-danger is-rounded is-medium">Pilot</a></div>
       </div>
       <div class="level-item">
@@ -11,22 +12,29 @@
         <div><a class="button is-danger is-rounded is-medium">Cabin Crew</a></div>
       </div>
     </div>
-  <hr />
-  <div class="level">
-    <div id="selectedStation" class="level-item">
-      <img src="~/static/pic_plane.png" height="180" width="180" />
-      <p>Aviation Academy</p>
+    <hr />
+    <div class="level">
+      <div id="selectedStation" class="level-item">
+        <img src="~/static/pic_plane.png" height="180" width="180" />
+        <p>Aviation Academy</p>
+      </div>
+      <p id="description" class="level-item">
+        Get a rare opportunity to be inside a cockpit and have a taste of what it feels like to operate an aircraft! Work in the sky as you flash your brightest smile and serve the passengers on board the flight as an esteemed Cabin Crew!
+      </p>
     </div>
-    <p class="level-item" id="description">
-      Get a rare opportunity to be inside a cockpit and have a taste of what it feels like to operate an aircraft!
-      Work in the sky as you flash your brightest smile and serve the passengers on board the flight as an esteemed Cabin Crew!
-    </p>
-  </div>
-</section>
+  </section>
+  <!-- <div id="logo">
+    <img src="~/static/images/pic_official_logo.png" height="158" width="158" />
+  </div> -->
+</div>
 </template>
 
 <script>
-
+export default {
+  beforeCreate() {
+    this.$store.commit('setPageTitle', 'Select Role');
+  }
+}
 </script>
 
 <style>
