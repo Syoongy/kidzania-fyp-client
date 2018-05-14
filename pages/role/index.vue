@@ -38,11 +38,11 @@ export default {
 </script>
 
 <style>
-#logo {
+/* #logo {
   position: absolute;
   right: 30px;
   bottom: 20px;
-}
+} */
 
 #text {
   color: #4D4D4D;
