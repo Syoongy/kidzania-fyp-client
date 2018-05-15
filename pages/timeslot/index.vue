@@ -17,7 +17,7 @@
             </div>
           </div>
         </div>
-      //testing
+
         <div class="level-item">
           <div class="card">
             <div class="media">
@@ -31,6 +31,7 @@
             </div>
           </div>
         </div>
+
         <div class="level-item">
           <div class="card">
             <div class="media">
