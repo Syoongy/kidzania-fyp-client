@@ -16,9 +16,7 @@
 let scannedArray = [];
 let scannedID = '';
 export default {
-  beforeCreate() {
-    this.$store.commit('setSocket', this.$socket);
-  },
+
   mounted() {
     let self = this;
     window.onkeypress = function(e) {

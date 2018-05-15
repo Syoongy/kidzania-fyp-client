@@ -3,9 +3,6 @@ module.exports = {
     '@nuxtjs/axios',
     'nuxt-buefy'
   ],
-  plugins: [
-    {src: '~/plugins/vue-socketio.js', ssr: false}
-  ],
   /*
   ** Headers of the page
   */
