@@ -1,94 +1,20 @@
 <template>
   <div>
-    <section class="container">
-
-      <div class="level">
-
-        <div class="level-item">
+    <section class="container columns is-multiline">
+        <div v-for="(timeslot, index) in timeslots" :key="index" class="column is-one-third">
           <div class="card">
             <div class="media">
               <div class="media-left">
-                <p class="noOfSlots">6</p>
+                <p class="noOfSlots">{{capacity - timeslot.noBooked}}</p>
                 <p class="slots">slot(s) left</p>
               </div>
               <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
+                <p class="timing">{{timeslot.time}}</p>
               </div>
             </div>
           </div>
         </div>
-
-        <div class="level-item">
-          <div class="card">
-            <div class="media">
-              <div class="media-left">
-                <p class="noOfSlots">6</p>
-                <p class="slots">slot(s) left</p>
-              </div>
-              <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="level-item">
-          <div class="card">
-            <div class="media">
-              <div class="media-left">
-                <p class="noOfSlots">6</p>
-                <p class="slots">slot(s) left</p>
-              </div>
-              <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="level">
-
-        <div class="level-item">
-          <div class="card">
-            <div class="media">
-              <div class="media-left">
-                <p class="noOfSlots">6</p>
-                <p class="slots">slot(s) left</p>
-              </div>
-              <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="level-item">
-          <div class="card">
-            <div class="media">
-              <div class="media-left">
-                <p class="noOfSlots">6</p>
-                <p class="slots">slot(s) left</p>
-              </div>
-              <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="level-item">
-          <div class="card">
-            <div class="media">
-              <div class="media-left">
-                <p class="noOfSlots">6</p>
-                <p class="slots">slot(s) left</p>
-              </div>
-              <div class="media-content">
-                <p class="timing">10:00AM-10:20AM</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+   
 
       <div id="bookBtn"><a class="button is-danger is-rounded is-medium">Book</a></div>
     </section>
@@ -96,9 +22,33 @@
 </template>
 
 <script>
+  import axios from "axios"
   export default {
+    data() {
+      return {
+        myData: null,
+        timeslots: null,
+        stationName: "",
+        capacity: null,
+      }
+    },
     beforeCreate() {
-      this.$store.commit("setPageTitle", "Select Timeslot");
+        this.$store.commit("setPageTitle", "Select Timeslot");       
+    },
+    created() {
+      axios.get('http://localhost:8000/stations/getAvailableTimeslots')
+        .then((res) => {
+        console.log(res.data)
+        console.log('Success')
+        this.myData = res.data
+        this.timeslots = this.myData.timeslots
+        this.stationName = this.myData.station_name
+        this.capacity = this.myData.capacity
+        console.log(this.capacity)
+        })
+        .catch((err) => {
+        console.log('Fail')
+        })      
     }
   };
 </script>
