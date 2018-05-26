@@ -14,6 +14,8 @@
             </div>
           </div>
         </div>
+   
+
       <div id="bookBtn"><a class="button is-danger is-rounded is-medium">Book</a></div>
     </section>
   </div>
@@ -31,7 +33,7 @@
       }
     },
     beforeCreate() {
-        this.$store.commit("setPageTitle", "Select Timeslot");
+        this.$store.commit("setPageTitle", "Select Timeslot");       
     },
     created() {
       axios.get('http://localhost:8000/stations/getAvailableTimeslots')
@@ -46,32 +48,12 @@
         })
         .catch((err) => {
         console.log('Fail')
-        })
+        })      
     }
   };
 </script>
 
 <style>
-  #logo {
-    position: absolute;
-    right: 30px;
-    bottom: 0;
-  }
-
-  .column {
-    align-items: center;
-    display: flex;
-    flex-direction: column;
-    flex-wrap: wrap;
-    margin-top: 40px;
-    height: 130px;
-  }
-
-  a {
-    font-weight: bold;
-    width: 65%;
-  }
-
   .timing {
     color: #4d4d4d;
     font-size: 18px;
@@ -118,5 +100,7 @@
     flex-direction: column;
     flex-wrap: wrap;
   }
-
+  .level{
+    padding-top: 40px;
+  }
 </style>
