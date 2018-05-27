@@ -1,7 +1,7 @@
 <template>
 <div>
-  <section class="hero">
-    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);"></i>
+  <section class="hero" v-if="$store.state.scannedID != ''">
+    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking'"></i>
     <div class="hero-body">
       <h1 id="title">
           {{$store.state.pageName}}
@@ -13,6 +13,7 @@
 </template>
 
 <script>
+import axios from "axios"
 let scannedArray = [];
 let scannedID = '';
 export default {
@@ -25,24 +26,58 @@ export default {
         scannedArray = [];
         if (self.$store.state.scannedID == '') {
           self.$store.commit('setScannedID', scannedID);
-          self.$router.push(`home`);
+          self.$router.push(`mybooking`);
           scannedID = '';
         } else {
           console.dir(scannedID);
           self.$store.commit('setScannedID', scannedID);
-          self.$router.push(`home`);
+          self.$router.push(`mybooking`);
           scannedID = '';
         }
       } else {
         scannedArray.push(e.key);
       }
     }
+  },
+
+  beforeCreate() {
+    let self = this;
+    let stationList;
+    let roleList;
+    //Retrieve Roles and store in roleList
+    axios.get(`http://localhost:8000/roles`)
+      .then((res) => {
+        roleList = res.data;
+      })
+      .catch((err) => {
+        console.log(err)
+      });
+
+    //Retrieve Stations and store in Vuex Store
+    axios.get(`http://localhost:8000/stations`)
+      .then((res) => {
+        stationList = res.data;
+        stationList.forEach(function(station) {
+          let tempRoleList = [];
+          roleList.forEach(function(role) {
+            if (role.station_id == station.station_id) {
+              tempRoleList.push(role);
+            }
+          });
+          station.roles = tempRoleList;
+          self.$store.commit('addStation', station);
+        });
+        let testList = self.$store.state.stationsList;
+        console.dir(testList);
+      })
+      .catch((err) => {
+        console.log(err)
+      });
   }
 }
 </script>
 
 <style>
-
 html {
   background-color: #F8FAF4;
   overflow: hidden;
@@ -85,5 +120,4 @@ html {
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.16);
   border-radius: 15px;
 }
-
 </style>

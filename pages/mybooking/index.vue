@@ -14,12 +14,13 @@
             </div>
           </div>
         </div>
-        <div class="columns">
-          <div class="column is-4 is-offset-2">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-4">
             <a class="button is-success is-rounded is-large">Print receipt</a>
           </div>
           <div class="column is-4">
-            <a class="button is-danger is-rounded is-large" @click="confirmChange">Change Booking</a>
+            <a class="button is-danger is-rounded is-large" @click="confirmChange" v-if="checkBooked">Change Booking</a>
+            <a class="button is-danger is-rounded is-large" @click="$router.push(`station`);" v-else>Make Booking</a>
           </div>
         </div>
       </section>
@@ -42,7 +43,30 @@
               },
               getStations() {
 
+              },
+              checkBooking(){
+                let bookingMade;
+                axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
+                .then((res) => {
+                  if(res.status == "404") {
+                    console.dir(res.status);
+                    bookingMade = false;
+                  }
+                  else {
+                    bookingMade = true
+                  }
+                })
+                .catch((err) => {
+                  console.log('Fail')
+                });
+
+                return bookingMade;
               }
+          },
+          data() {
+            return{
+              checkBooked: this.checkBooking()
+            }
           },
           created() {
             axios.get('http://localhost:8000/stations/getAvailableTimeslots')
@@ -52,45 +76,48 @@
             })
             .catch((err) => {
               console.log('Fail')
-            })
+            });
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');
+
           },
       }
   </script>
 
-<style>
-  .dialog{
-    position:relative;
-    width:80%;
-    height:80%;
-    margin-right:auto;
-    margin-top:10%;
-    margin-bottom: auto;
-    border:1px solid #a9a9a9;
-    margin-left:45px;
-    background-color: #fff;
-    border-radius: 4px;
-  }
-  .dialog:before{
-    position: absolute;
-    content: "";
-    width: 0;
-    height: 0;
-    left:-59px;
-    top:88px;
-    border-top:26px solid transparent;
-    border-right: 59px solid #a9a9a9;
-  }
-  .dialog:after{
-    position: absolute;
-    content: "";
-    width: 0;
-    height: 0;
-    left:-51px;
-    top:89px;
-    border-top:18px solid transparent;
-    border-right: 51px solid #fff;
-  }
+<style scoped>
+.dialog {
+  position: relative;
+  width: 80%;
+  height: 80%;
+  margin-right: auto;
+  margin-top: 10%;
+  margin-bottom: auto;
+  border: 1px solid #a9a9a9;
+  margin-left: 45px;
+  background-color: #fff;
+  border-radius: 4px;
+}
+
+.dialog:before {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  left: -59px;
+  top: 88px;
+  border-top: 26px solid transparent;
+  border-right: 59px solid #a9a9a9;
+}
+
+.dialog:after {
+  position: absolute;
+  content: "";
+  width: 0;
+  height: 0;
+  left: -51px;
+  top: 89px;
+  border-top: 18px solid transparent;
+  border-right: 51px solid #fff;
+}
 </style>

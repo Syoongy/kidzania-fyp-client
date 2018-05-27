@@ -3,9 +3,11 @@
   <section class="mySection container columns is-multiline">
 
     <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
-      <img :src="`${station.imgLoc}`"/>
-      <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
-      <a class="button is-danger is-rounded is-medium">{{station.name}}</a>
+      <div @click="$router.push('role');" class="stationBox">
+        <img :src="`${station.imagepath}`"/>
+        <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
+        <a class="button is-danger is-rounded is-medium">{{station.station_name}}</a>
+      </div>
     </div>
 
   </section>
@@ -19,50 +21,13 @@ export default {
   },
   data() {
     return {
-      dataList: [
-        {
-          imgLoc: "pic_pizza.png",
-          name: "Pizza Shop"
-        },
-        {
-          imgLoc: "pic_fireman.png",
-          name: "Fire Station"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        },
-        {
-          imgLoc: "pic_plane.png",
-          name: "Aviation Academy"
-        }
-      ]
+      dataList: this.$store.state.stationsList
     }
   }
 }
 </script>
 
-<style>
+<style scoped>
 #logo {
   position: absolute;
   right: 30px;
@@ -100,6 +65,14 @@ a {
 
 .mySection {
   overflow-y: auto;
+}
+
+.stationBox {
+  text-align: center;
+}
+
+.button {
+  width: 275px;
 }
 
 ::-webkit-scrollbar {

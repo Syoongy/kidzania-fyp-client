@@ -3,7 +3,7 @@
   <div class="subtitle">
     From the store = {{$store.state.scannedID}}
   </div>
-  <a class="button is-primary" v-on:click="$router.push(`station`);">Primary</a>
+  <a class="button is-primary" v-on:click="$router.replace(`station`);">Primary</a>
 </section>
 </template>
 

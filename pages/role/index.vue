@@ -3,6 +3,13 @@
   <section class="container">
     <div class="level">
       <p id="text"> I want to <br /> become a(n): </p>
+
+        <div class="level-item" v-for="(role, index) in dataList" :key="index">
+          <img :src="`${role.imagepath}`" />
+          <a class="button is-danger is-rounded is-medium">{{role.role_name}}</a>
+        </div>
+
+      <!-- Static version
       <div class="level-item">
         <img src="~/static/pic_pilot.png" height="108" width="108" />
         <div><a class="button is-danger is-rounded is-medium">Pilot</a></div>
@@ -11,7 +18,10 @@
         <img src="~/static/pic_cabincrew.png" height="188" width="188" />
         <div><a class="button is-danger is-rounded is-medium">Cabin Crew</a></div>
       </div>
+    -->
+
     </div>
+
     <hr />
     <div class="level">
       <div id="selectedStation" class="level-item">
@@ -31,13 +41,35 @@
 
 <script>
 export default {
+  data() {
+    return {
+      dataList: []
+    }
+  },
+  methods: {
+    getRoles(station_id) {
+      let self = this;
+      let stationList = this.$store.state.stationsList;
+      stationList.forEach(function(station) {
+        if (station.station_id == station_id) {
+          station.roles.forEach(function(role) {
+            self.dataList.push(role);
+          });
+        }
+      });
+      console.log(self.dataList);
+    }
+  },
   beforeCreate() {
     this.$store.commit('setPageTitle', 'Select Role');
+  },
+  mounted() {
+    this.getRoles(8);
   }
 }
 </script>
 
-<style>
+<style scoped>
 /* #logo {
   position: absolute;
   right: 30px;
@@ -79,5 +111,10 @@ a {
   margin-right: 180px;
   width: 100px;
   word-wrap: break-word;
+}
+
+img {
+  height: 188px;
+  width: 188px;
 }
 </style>
