@@ -23,6 +23,11 @@ const createStore = () => {
 			addStation: (state, payload) => {
 				state.stationsList.push(payload);
 			}
+		},
+		getters: {
+			getStationById: (state) => (id) => {
+				return state.stationsList.find(station => station.station_id == id);
+			}
 		}
 	})
 }

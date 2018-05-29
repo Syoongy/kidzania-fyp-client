@@ -58,6 +58,7 @@
                 })
                 .catch((err) => {
                   console.log('Fail')
+                  bookingMade = false;
                 });
 
                 return bookingMade;

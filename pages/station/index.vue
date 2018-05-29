@@ -3,7 +3,7 @@
   <section class="mySection container columns is-multiline">
 
     <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
-      <div @click="$router.push('role');" class="stationBox">
+      <div @click="$router.push({ name: 'role-id', query: { stationID: station.station_id }});" class="stationBox">
         <img :src="`${station.imagepath}`"/>
         <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
         <a class="button is-danger is-rounded is-medium">{{station.station_name}}</a>

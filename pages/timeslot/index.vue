@@ -51,7 +51,7 @@
   };
 </script>
 
-<style>
+<style scoped>
   #logo {
     position: absolute;
     right: 30px;
