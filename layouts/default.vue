@@ -1,7 +1,7 @@
 <template>
 <div>
   <section class="hero" v-if="$store.state.scannedID != ''">
-    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking'"></i>
+    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'"></i>
     <div class="hero-body">
       <h1 id="title">
           {{$store.state.pageName}}
@@ -24,20 +24,14 @@ export default {
       if (e.key == 'Enter') {
         scannedID = scannedArray.join('');
         scannedArray = [];
-        if (self.$store.state.scannedID == '') {
-          self.$store.commit('setScannedID', scannedID);
-          self.$router.push(`mybooking`);
-          scannedID = '';
-        } else {
-          console.dir(scannedID);
-          self.$store.commit('setScannedID', scannedID);
-          self.$router.push(`mybooking`);
-          scannedID = '';
-        }
+        console.dir(scannedID);
+        self.$store.commit('setScannedID', scannedID);
+        self.$router.push(`mybooking`);
+        scannedID = '';
       } else {
         scannedArray.push(e.key);
       }
-    }
+    };
   },
 
   beforeCreate() {

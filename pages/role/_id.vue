@@ -51,7 +51,6 @@ export default {
     },
     addRoleToCart(role) {
       this.$store.commit('addRoleToCart', role.role_name);
-      console.dir(role.role_name);
       this.$router.push('timeslot');
     }
   },

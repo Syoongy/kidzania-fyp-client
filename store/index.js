@@ -29,11 +29,6 @@ const createStore = () => {
 			addRoleToCart: (state, payload) => {
 				state.bookingCart.role = payload;
 			}
-		},
-		getters: {
-			getStationById: (state) => (id) => {
-				return state.stationsList.find(station => station.station_id == id);
-			}
 		}
 	})
 }
