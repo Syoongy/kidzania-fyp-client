@@ -1,15 +1,15 @@
 <template>
   <div>
     <section class="container columns is-multiline">
-        <div v-for="(timeslot, index) in timeslots" :key="index" class="column is-one-third">
+        <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third">
           <div class="card">
             <div class="media">
               <div class="media-left">
-                <p class="noOfSlots">{{capacity - timeslot.noBooked}}</p>
+                <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
                 <p class="slots">slot(s) left</p>
               </div>
               <div class="media-content">
-                <p class="timing">{{timeslot.time}}</p>
+                <p class="timing">{{timeslot.session_start}} - {{timeslot.session_end}}</p>
               </div>
             </div>
           </div>
@@ -24,25 +24,20 @@
   export default {
     data() {
       return {
-        myData: null,
-        timeslots: null,
-        stationName: "",
-        capacity: null,
+        dataList: []
       }
     },
     beforeCreate() {
         this.$store.commit("setPageTitle", "Select Timeslot");
     },
     created() {
-      axios.get('http://localhost:8000/stations/getAvailableTimeslots')
+      let stationId = this.$store.state.bookingCart.station.station_id;
+      let roleId = this.$store.state.bookingCart.role;
+      axios.get(`http://localhost:8000/sessions/${stationId}/${roleId}`)
         .then((res) => {
         console.log(res.data)
         console.log('Success')
-        this.myData = res.data
-        this.timeslots = this.myData.timeslots
-        this.stationName = this.myData.station_name
-        this.capacity = this.myData.capacity
-        console.log(this.capacity)
+        this.dataList = res.data
         })
         .catch((err) => {
         console.log('Fail')

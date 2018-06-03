@@ -6,7 +6,7 @@
 
       <div class="level-item" v-for="(role, index) in dataList" :key="index">
         <img :src="`${role.imagepath}`" />
-        <a class="button is-danger is-rounded is-medium" @click="$router.push('timeslot');">{{role.role_name}}</a>
+        <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
       </div>
 
     </div>
@@ -29,13 +29,13 @@
 
 <script>
 export default {
-  asyncData({
+  /*asyncData({
     query
   }) {
     return {
       sID: query.stationID
     }
-  },
+  },*/
   data() {
     return {
       dataList: [],
@@ -48,13 +48,18 @@ export default {
       station.roles.forEach(function(role) {
         self.dataList.push(role);
       });
+    },
+    addRoleToCart(role) {
+      this.$store.commit('addRoleToCart', role.role_name);
+      console.dir(role.role_name);
+      this.$router.push('timeslot');
     }
   },
   beforeCreate() {
     this.$store.commit('setPageTitle', 'Select Role');
   },
   mounted() {
-    let currStation = this.$store.getters.getStationById(this.sID);
+    let currStation = this.$store.state.bookingCart.station;
     console.dir(currStation);
     this.getData(currStation);
     this.stationData = currStation;

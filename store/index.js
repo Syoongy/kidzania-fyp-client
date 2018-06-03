@@ -7,7 +7,7 @@ const createStore = () => {
 			io: {},
 			pageName: '',
 			stationsList: [],
-			rolesList: []
+			bookingCart: {}
 		},
 		mutations: {
 			setScannedID(state, payload) {
@@ -22,6 +22,12 @@ const createStore = () => {
 			},
 			addStation: (state, payload) => {
 				state.stationsList.push(payload);
+			},
+			addStationToCart: (state, payload) => {
+				state.bookingCart.station = payload;
+			},
+			addRoleToCart: (state, payload) => {
+				state.bookingCart.role = payload;
 			}
 		},
 		getters: {
