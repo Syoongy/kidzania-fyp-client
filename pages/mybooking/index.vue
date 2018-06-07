@@ -1,6 +1,7 @@
 <template>
     <div id="app">
-      <section class="container is-centered" id="mySection">
+      <section  class="container is-centered" id="mySection">
+        <div  v-if="isBooked">
         <div class="columns">
           <div class="column is-4 is-offset-1" >
             <img src="/pic_fireman.png"/>
@@ -8,7 +9,7 @@
           <div class="column is-6" >
             <div class="dialog">
 
-                <p style="margin:20px" class="title">Come join me as a Pilot at the Aviation Academy from 11:20AM to 11:40AM !</p>
+                <p style="margin:20px" class="title">Come join me as a {{ roleName }} at the {{ stationName }} from {{ sessionStartTime }} to {{ sessionEndTime }} !</p>
 
               <div style="clear: both"></div>
             </div>
@@ -19,10 +20,21 @@
             <a class="button is-success is-rounded is-large">Print receipt</a>
           </div>
           <div class="column is-4">
-            <a class="button is-danger is-rounded is-large" @click="confirmChange" v-if="checkBooked">Change Booking</a>
-            <a class="button is-danger is-rounded is-large" @click="$router.push(`station`);" v-else>Make Booking</a>
+            <a class="button is-danger is-rounded is-large" @click="confirmChange" >Change Booking</a>
           </div>
         </div>
+
+      </div>
+      <div  v-else class="container" >
+        <br/>
+        <br/>
+        <p style="text-align: center" class="title">You currently have no Bookings yet! </p>
+        <p style="text-align: center" class="title">  Hurry and make one now! </p>
+        <br/>
+        <div class="columns is-centered has-text-centered">
+          <a class="button is-danger is-rounded is-large" @click="$router.push(`station`);">Start Booking</a>
+        </div>
+      </div>
       </section>
     </div>
   </template>
@@ -41,43 +53,44 @@
                       onConfirm: () => this.$toast.open('Booking Changed!')
                   })
               },
-              getStations() {
-
-              },
-              checkBooking(){
-                let bookingMade;
-                axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
-                .then((res) => {
-                  if(res.status == "404") {
-                    console.dir(res.status);
-                    bookingMade = false;
-                  }
-                  else {
-                    bookingMade = true
-                  }
-                })
-                .catch((err) => {
-                  console.log('Fail')
-                  bookingMade = false;
-                });
-
-                return bookingMade;
+              scanRFID(){
               }
           },
           data() {
-            return{
-              checkBooked: this.checkBooking()
+            return {
+              roleName: "",
+              stationName: "",
+              isBooked: false,
+              sessionStartTime: "",
+              sessionEndTime:""
             }
           },
           created() {
-            axios.get('http://localhost:8000/stations/getAvailableTimeslots')
-            .then((res) => {
-              console.log(res.data)
-              console.log('Success')
-            })
-            .catch((err) => {
-              console.log('Fail')
-            });
+
+            let booking;
+            //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
+            axios.get(`http://localhost:8000/bookings/rfid`)
+              .then((res) => {
+                if(res.status == "200") {
+                  booking = res.data[0];
+                  this.roleName = booking.role_name;
+                  this.stationName = booking.station_name;
+                  this.sessionStartTime = booking.session_start;
+                  this.sessionEndTime = booking.session_end;
+                  console.log(res.data)
+                  this.isBooked = true;
+                }
+                else {
+                  console.dir(res.status);
+                  booking = null;
+                }
+              })
+              .catch((err) => {
+                console.log('Fail');
+                booking = null;
+              });
+
+            return booking;
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');
