@@ -4,7 +4,7 @@
         <div  v-if="isBooked">
         <div class="columns">
           <div class="column is-4 is-offset-1" >
-            <img src="/pic_fireman.png"/>
+            <img :src="roleImagePath" />
           </div>
           <div class="column is-6" >
             <div class="dialog">
@@ -54,6 +54,21 @@
                   })
               },
               scanRFID(){
+              },
+              setImagePath(roleName){
+                this.dataList.forEach(function(station) {
+                  if(station.station_id == this.stationID){
+
+                    console.log(roleName);
+                    console.log(station.roles);
+                    station.roles.forEach(function(role) {
+                      if(role.role_name == roleName){
+
+                        this.roleImagePath = role.imagepath;
+                      }
+                    });
+                  }
+                });
               }
           },
           data() {
@@ -62,7 +77,10 @@
               stationName: "",
               isBooked: false,
               sessionStartTime: "",
-              sessionEndTime:""
+              sessionEndTime:"",
+              roleImagePath:"",
+              stationID:"",
+              dataList: this.$store.state.stationsList
             }
           },
           created() {
@@ -72,12 +90,16 @@
             axios.get(`http://localhost:8000/bookings/rfid`)
               .then((res) => {
                 if(res.status == "200") {
+                  console.log(res.data);
+                  console.log(this.dataList);
                   booking = res.data[0];
                   this.roleName = booking.role_name;
                   this.stationName = booking.station_name;
                   this.sessionStartTime = booking.session_start;
                   this.sessionEndTime = booking.session_end;
-                  console.log(res.data)
+                  this.stationID = booking.station_id;
+                  this.setImagePath(booking.role_name);
+
                   this.isBooked = true;
                 }
                 else {
