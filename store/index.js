@@ -7,7 +7,7 @@ const createStore = () => {
 			io: {},
 			pageName: '',
 			stationsList: [],
-
+			role: '',
 			bookingCart: {}
 		},
 		mutations: {

@@ -50,7 +50,7 @@ export default {
       });
     },
     addRoleToCart(role) {
-      this.$store.commit('addRoleToCart', role.role_name);
+      this.$store.commit('addRoleToCart', role.role_id);
       this.$router.push('timeslot');
     }
   },

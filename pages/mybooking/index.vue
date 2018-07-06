@@ -25,7 +25,7 @@
         </div>
 
       </div>
-      <div  v-else class="container" >
+      <div  v-else >
         <br/>
         <br/>
         <p style="text-align: center" class="title">You currently have no Bookings yet! </p>
@@ -55,16 +55,13 @@
               },
               scanRFID(){
               },
-              setImagePath(roleName){
+              setImagePath(role_id){
+                let self = this
                 this.dataList.forEach(function(station) {
-                  if(station.station_id == this.stationID){
-
-                    console.log(roleName);
-                    console.log(station.roles);
+                  if(station.station_id == self.stationID){
                     station.roles.forEach(function(role) {
-                      if(role.role_name == roleName){
-
-                        this.roleImagePath = role.imagepath;
+                      if(role.role_id == role_id){
+                        self.roleImagePath = role.imagepath;
                       }
                     });
                   }
@@ -73,7 +70,7 @@
           },
           data() {
             return {
-              roleName: "",
+              role_id: "",
               stationName: "",
               isBooked: false,
               sessionStartTime: "",
@@ -87,18 +84,16 @@
 
             let booking;
             //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
-            axios.get(`http://localhost:8000/bookings/rfid`)
+            axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
               .then((res) => {
                 if(res.status == "200") {
-                  console.log(res.data);
-                  console.log(this.dataList);
                   booking = res.data[0];
-                  this.roleName = booking.role_name;
+                  this.role_id = booking.role_id;
                   this.stationName = booking.station_name;
                   this.sessionStartTime = booking.session_start;
                   this.sessionEndTime = booking.session_end;
                   this.stationID = booking.station_id;
-                  this.setImagePath(booking.role_name);
+                  this.setImagePath(booking.role_id);
 
                   this.isBooked = true;
                 }
@@ -108,7 +103,7 @@
                 }
               })
               .catch((err) => {
-                console.log('Fail');
+                console.log(err);
                 booking = null;
               });
 
@@ -116,7 +111,6 @@
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');
-
           },
       }
   </script>

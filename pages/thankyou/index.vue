@@ -8,8 +8,19 @@
 
 <script>
 export default {
+  methods: {
+
+  },
   beforeCreate() {
     this.$store.commit("setPageTitle", "Thank You");
+  },
+  mounted() {
+    let self = this;
+    function returnToHome() {
+      self.$router.push('/');
+      self.$store.commit("setPageTitle", "");
+    }
+    setTimeout(returnToHome, 10000)
   }
 }
 </script>

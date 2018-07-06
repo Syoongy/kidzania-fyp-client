@@ -2,7 +2,7 @@
 <div>
   <section class="hero" v-if="$store.state.scannedID != ''">
     <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'"></i>
-    <div class="hero-body">
+    <div class="hero-body" v-if="$store.state.pageName != ''">
       <h1 id="title">
           {{$store.state.pageName}}
       </h1>
@@ -34,21 +34,21 @@ export default {
     };
   },
 
-  beforeCreate() {
+  async beforeCreate() {
     let self = this;
     let stationList;
     let roleList;
     //Retrieve Roles and store in roleList
-    axios.get(`http://localhost:8000/roles`)
+    await axios.get(`http://localhost:8000/roles`)
       .then((res) => {
-        roleList = res.data;
+        roleList = res.data[0];
       })
       .catch((err) => {
         console.log(err)
       });
 
     //Retrieve Stations and store in Vuex Store
-    axios.get(`http://localhost:8000/stations`)
+    await axios.get(`http://localhost:8000/stations`)
       .then((res) => {
         stationList = res.data;
         stationList.forEach(function(station) {
@@ -61,8 +61,6 @@ export default {
           station.roles = tempRoleList;
           self.$store.commit('addStation', station);
         });
-        let testList = self.$store.state.stationsList;
-        console.dir(testList);
       })
       .catch((err) => {
         console.log(err)
