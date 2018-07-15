@@ -1,16 +1,16 @@
 <template>
-<section class="section">
-      <h1 class="title has-text-centered">
-        fyp-client-side
-      </h1>
-      <h2 class="subtitle has-text-centered">
-        Scan to move on
-      </h2>
-</section>
+  <section id="background"></section>
 </template>
 
 <script>
-
-export default {
-}
+  export default {}
 </script>
+
+<style>
+  #background{
+    background-image: url('~/static/img-instructions.png');
+    width: 100%;
+    height: 100vh;
+    background-position: center;
+  }
+</style>
