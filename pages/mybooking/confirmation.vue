@@ -1,26 +1,26 @@
 <template>
   <div id="app">
     <section class="container is-centered myContainer" id="mySection">
-      <div v-if="isBooked" class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
+      <div class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
         <div class="column is-12">
           <div class="columns">
-            <div class="column is-3 is-offset-2" >
+            <div class="column is-3 is-offset-2">
               <figure class="image is-3by4" id="roleImage">
-                <img :src="roleImagePath"/>
+                <img :src="roleImagePath" />
               </figure>
             </div>
-            <div class="column is-6" >
+            <div class="column is-6">
               <div class="dialog">
                 <div class="has-text-left-desktop" id="dialogText">
-                    <p class="title">
-                      Come join me as a <b class="has-text-danger">{{ roleName }}</b>
-                    </p>
-                    <p class="title">
-                      at the <b class="has-text-danger">{{ stationName }}</b>
-                    </p>
-                    <p class="title">
-                      from <b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> !
-                    </p>
+                  <p class="title">
+                    Come join me as a <b class="has-text-danger">{{ roleName }}</b>
+                  </p>
+                  <p class="title">
+                    at the <b class="has-text-danger">{{ stationName }}</b>
+                  </p>
+                  <p class="title">
+                    from <b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> !
+                  </p>
                 </div>
               </div>
             </div>
@@ -29,28 +29,17 @@
         <div class="column">
           <div class="columns is-centered has-text-centered">
             <div class="column is-5">
-              <a class="button is-success is-rounded is-large is-fullwidth">Print receipt</a>
+              <a class="button is-success is-rounded is-large is-fullwidth" @click="confirmBooking">Print receipt to confirm</a>
             </div>
             <div class="column is-5">
-              <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange" >Change Booking</a>
+              <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
             </div>
-          </div>
-        </div>
-    </div>
-    <div v-else class="level myLevel">
-      <div class="level-item has-text-centered">
-        <div>
-          <p class="title">You currently have no Bookings</p>
-          <br />
-          <div class="columns is-centered has-text-centered">
-            <a class="button is-danger is-rounded is-large" @click="$router.push(`station`);">Start Booking</a>
           </div>
         </div>
       </div>
-    </div>
     </section>
   </div>
-  </template>
+</template>
 
   <script>
       import axios from "axios"
@@ -66,7 +55,7 @@
                       onConfirm: () => this.$toast.open('Booking Changed!')
                   })
               },
-              scanRFID(){
+              confirmBooking(){
               },
               setImagePath(role_id){
                 let self = this
@@ -115,12 +104,11 @@
                 else {
                   console.dir(res.status);
                   booking = null;
-                  this.isBooked = false;
                 }
               })
               .catch((err) => {
                 console.log(err);
-                this.isBooked = false;
+                booking = null;
               });
 
             return booking;

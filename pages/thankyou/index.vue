@@ -1,9 +1,11 @@
 <template>
-<section class="columns container is-vcentered">
-  <div class="column is-size-1 has-text-centered has-text-weight-bold">
-    Do not forget to collect your receipt!
-  </div>
-</section>
+<div id="app">
+  <section class="columns container myContainer is-vcentered">
+    <div class="column is-size-1 has-text-centered has-text-weight-bold">
+      Do not forget to collect your receipt!
+    </div>
+  </section>
+</div>
 </template>
 
 <script>
@@ -16,6 +18,7 @@ export default {
   },
   mounted() {
     let self = this;
+
     function returnToHome() {
       self.$router.push('/');
       self.$store.commit("setPageTitle", "");

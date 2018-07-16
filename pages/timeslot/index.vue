@@ -1,6 +1,6 @@
 <template>
-<div>
-  <section class="container columns is-multiline is-centered">
+<div id="app">
+  <section class="myContainer container columns is-multiline is-centered">
     <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
       <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}" >
         <div class="media">
@@ -67,9 +67,9 @@ export default {
         .catch((err) => {
           console.log('FAILURE')
         });
-      this.$store.commit('setScannedID', '');
+      //this.$store.commit('setScannedID', '');
       this.socket.emit('makeBooking', self.selectedTimeSlot.session_id)
-      this.$router.push('thankyou')
+      this.$router.push('confirmation')
     }
   },
   data() {

@@ -1,30 +1,27 @@
 <template>
-<div>
-  <section class="container">
-    <div class="level">
-      <p id="text"> I want to <br /> become a(n): </p>
+  <div id="app">
+    <section class="container myContainer">
+      <div class="level">
+        <p id="text"> I want to <br /> become a(n): </p>
 
-      <div class="level-item" v-for="(role, index) in dataList" :key="index">
-        <img :src="`${role.imagepath}`" />
-        <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
-      </div>
+        <div class="level-item" v-for="(role, index) in dataList" :key="index">
+          <img :src="`${role.imagepath}`" />
+          <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
+        </div>
 
-    </div>
-    <hr />
-    <div class="level" id="stationDetails">
-      <div id="selectedStation" class="level-item">
-        <img :src="`${stationData.imagepath}`" height="180" width="180" />
-        <p>{{stationData.station_name}}</p>
       </div>
-      <p id="description" class="level-item">
-        {{stationData.description}}
-      </p>
-    </div>
-  </section>
-  <!-- <div id="logo">
-    <img src="~/static/images/pic_official_logo.png" height="158" width="158" />
-  </div> -->
-</div>
+      <hr />
+      <div class="level" id="stationDetails">
+        <div id="selectedStation" class="level-item">
+          <img :src="`${stationData.imagepath}`" height="180" width="180" />
+          <p>{{stationData.station_name}}</p>
+        </div>
+        <p id="description" class="level-item">
+          {{stationData.description}}
+        </p>
+      </div>
+    </section>
+  </div>
 </template>
 
 <script>

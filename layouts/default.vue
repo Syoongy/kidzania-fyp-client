@@ -1,5 +1,5 @@
 <template>
-<div>
+<div id="myLayout">
   <section class="hero" v-if="$store.state.scannedID != ''">
     <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'"></i>
     <div class="hero-body" v-if="$store.state.pageName != ''">
@@ -9,6 +9,11 @@
     </div>
   </section>
   <nuxt/>
+  <footer id="myFooter">
+    <figure class="image is-3by1 logo">
+      <img src="kzLogo.svg" class="staticLogo" />
+    </figure>
+  </footer>
 </div>
 </template>
 
@@ -73,6 +78,18 @@ export default {
 html {
   background-color: #F8FAF4;
   overflow: hidden;
+  height: 100%;
+}
+
+body,
+#__nuxt,
+#__layout,
+#myLayout {
+  height: 100%;
+}
+
+#app {
+  height: 80%;
 }
 
 .mdi {
@@ -104,12 +121,26 @@ html {
   font-size: 36px;
 }
 
-.container {
+.myContainer {
   background-color: #FFF;
-  height: 800px;
+  height: 90%;
   width: 85%;
-  margin: 50px auto 100px auto;
+  margin: 5% auto 5% auto;
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.16);
   border-radius: 15px;
+}
+
+#myFooter {
+  position:absolute;
+  bottom:2%;
+  left:90%;
+}
+
+.logo {
+  max-width: 80%;
+}
+
+.staticLogo {
+  position: static !important;
 }
 </style>
