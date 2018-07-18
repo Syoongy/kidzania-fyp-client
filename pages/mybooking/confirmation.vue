@@ -63,7 +63,7 @@
                   if(station.station_id == self.stationID){
                     station.roles.forEach(function(role) {
                       if(role.role_id == role_id){
-                        self.roleImagePath = role.imagepath;
+                        self.roleImagePath = require('~/static/' + role.imagepath);
                         self.roleName = role.role_name;
                       }
                     });
@@ -76,7 +76,6 @@
               role_id: "",
               roleName: "",
               stationName: "",
-              isBooked: false,
               sessionStartTime: "",
               sessionEndTime:"",
               roleImagePath:"",
@@ -85,11 +84,12 @@
             }
           },
           created() {
-
+            console.log('hi')
             let booking;
             //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
             axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
               .then((res) => {
+                console.log('hi')
                 if(res.status == "200") {
                   booking = res.data[0];
                   this.role_id = booking.role_id;
@@ -98,20 +98,14 @@
                   this.sessionEndTime = booking.session_end;
                   this.stationID = booking.station_id;
                   this.setImagePath(booking.role_id);
-
-                  this.isBooked = true;
                 }
                 else {
                   console.dir(res.status);
-                  booking = null;
                 }
               })
               .catch((err) => {
                 console.log(err);
-                booking = null;
               });
-
-            return booking;
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');

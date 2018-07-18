@@ -11,7 +11,7 @@
   <nuxt/>
   <footer id="myFooter">
     <figure class="image is-3by1 logo">
-      <img src="kzLogo.svg" class="staticLogo" />
+      <img src="~/static/kzLogo.svg" class="staticLogo" />
     </figure>
   </footer>
 </div>

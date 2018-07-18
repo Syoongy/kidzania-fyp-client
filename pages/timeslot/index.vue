@@ -63,13 +63,14 @@ export default {
           })
         .then((res) => {
           console.log('SUCCESS')
+          this.socket.emit('makeBooking', self.selectedTimeSlot.session_id)
+          this.$router.push('mybooking/confirmation')
         })
         .catch((err) => {
           console.log('FAILURE')
         });
       //this.$store.commit('setScannedID', '');
-      this.socket.emit('makeBooking', self.selectedTimeSlot.session_id)
-      this.$router.push('confirmation')
+
     }
   },
   data() {
