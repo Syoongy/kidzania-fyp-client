@@ -31,6 +31,20 @@ export default {
         scannedArray = [];
         console.dir(scannedID);
         self.$store.commit('setScannedID', scannedID);
+        axios.get(`http://localhost:8000/bookings/${self.$store.state.scannedID}`)
+          .then((res) => {
+            if (res.status == "200") {
+              let booking = res.data[0];
+              booking.isBooked = true;
+              self.$store.commit('setBookingDetail', booking);
+              console.log(self.$store.state.bookingDetail)
+            }
+          })
+          .catch((err) => {
+            self.$store.commit('setBookingDetail', null);
+            console.log(self.$store.state.bookingDetail)
+          });
+
         self.$router.push(`mybooking`);
         scannedID = '';
       } else {
@@ -131,9 +145,9 @@ body,
 }
 
 #myFooter {
-  position:absolute;
-  bottom:2%;
-  left:90%;
+  position: absolute;
+  bottom: 2%;
+  left: 90%;
 }
 
 .logo {

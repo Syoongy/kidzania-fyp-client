@@ -63,7 +63,7 @@
                       confirmText: 'OK',
                       type: 'is-danger',
                       hasIcon: true,
-                      onConfirm: () => this.$toast.open('Booking Changed!')
+                      onConfirm: () => this.$router.push('station')
                   })
               },
               scanRFID(){
@@ -84,50 +84,47 @@
           },
           data() {
             return {
+              // role_id: this.$store.state.bookingDetail.role_id,
+              // roleName: "",
+              // stationName: this.$store.state.bookingDetail.station_name,
+              // isBooked: this.$store.state.bookingDetail.isBooked,
+              // sessionStartTime: this.$store.state.bookingDetail.session_start,
+              // sessionEndTime: this.$store.state.bookingDetail.session_end,
+              // roleImagePath:"",
+              // stationID: this.$store.state.bookingDetail.station_id,
+              // dataList: this.$store.state.stationsList
               role_id: "",
               roleName: "",
               stationName: "",
-              isBooked: false,
+              isBooked: "",
               sessionStartTime: "",
-              sessionEndTime:"",
+              sessionEndTime: "",
               roleImagePath:"",
-              stationID:"",
+              stationID: "",
               dataList: this.$store.state.stationsList
             }
-          },
-          created() {
-
-            let booking;
-            //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
-            axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
-              .then((res) => {
-                if(res.status == "200") {
-                  booking = res.data[0];
-                  this.role_id = booking.role_id;
-                  this.stationName = booking.station_name;
-                  this.sessionStartTime = booking.session_start;
-                  this.sessionEndTime = booking.session_end;
-                  this.stationID = booking.station_id;
-                  this.setImagePath(booking.role_id);
-
-                  this.isBooked = true;
-                }
-                else {
-                  console.dir(res.status);
-                  booking = null;
-                  this.isBooked = false;
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-                this.isBooked = false;
-              });
-
-            return booking;
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');
           },
+          created() {
+            console.log('created');
+            let booking = this.$store.state.bookingDetail;
+            if(booking != null) {
+              this.role_id = booking.role_id;
+              this.stationName = booking.station_name;
+              this.sessionStartTime = booking.session_start;
+              this.sessionEndTime = booking.session_end;
+              this.stationID = booking.station_id;
+              this.setImagePath(booking.role_id);
+              this.isBooked = true;
+            }
+            else {
+              this.isBooked = false;
+            }
+          },
+          mounted() {
+          }
       }
   </script>
 

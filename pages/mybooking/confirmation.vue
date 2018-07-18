@@ -84,14 +84,12 @@
             }
           },
           created() {
-            console.log('hi')
             let booking;
             //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
             axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
               .then((res) => {
-                console.log('hi')
                 if(res.status == "200") {
-                  booking = res.data[0];
+                  booking = this.$store.state.bookingDetail;
                   this.role_id = booking.role_id;
                   this.stationName = booking.station_name;
                   this.sessionStartTime = booking.session_start;

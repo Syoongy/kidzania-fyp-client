@@ -8,7 +8,8 @@ const createStore = () => {
 			pageName: '',
 			stationsList: [],
 			role: '',
-			bookingCart: {}
+			bookingCart: {},
+			bookingDetail: {}
 		},
 		mutations: {
 			setScannedID(state, payload) {
@@ -16,6 +17,9 @@ const createStore = () => {
 			},
 			setPageTitle(state, payload) {
 				state.pageName = payload;
+			},
+			setBookingDetail(state, payload) {
+				state.bookingDetail = payload;
 			},
 			setSocket: (state, socket) => {
 				state.io = socket;
