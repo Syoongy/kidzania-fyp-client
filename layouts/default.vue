@@ -18,34 +18,77 @@
 </template>
 
 <script>
-import axios from "axios"
+//import axios from "axios"
 let scannedArray = [];
 let scannedID = '';
 export default {
-
-  mounted() {
+  methods: {
+    createTimer() {
+      this.myTimer = setInterval(console.log('hi'), 1000)
+    }
+  },
+  data() {
+    return {
+      myTimer: ''
+    }
+  },
+  async mounted() {
     let self = this;
-    window.onkeypress = function(e) {
+    let stationList;
+    let roleList;
+    //Retrieve Roles and store in roleList
+    roleList = await self.$axios.$get(`/roles`)
+      .catch(e => {
+        console.log(e);
+      });
+    console.dir('hi');
+    console.dir(roleList);
+    roleList = roleList[0];
+    //Retrieve Stations and store in Vuex Store
+    stationList = await this.$axios.$get(`/stations`);
+    stationList.forEach(function(station) {
+      let tempRoleList = [];
+      roleList.forEach(function(role) {
+        if (role.station_id == station.station_id) {
+          tempRoleList.push(role);
+        }
+      });
+      station.roles = tempRoleList;
+      self.$store.commit('addStation', station);
+    })
+    this.createTimer()
+    window.onkeypress = async function(e) {
       if (e.key == 'Enter') {
         scannedID = scannedArray.join('');
         scannedArray = [];
         console.dir(scannedID);
-        self.$store.commit('setScannedID', scannedID);
-        axios.get(`http://localhost:8000/bookings/${self.$store.state.scannedID}`)
-          .then((res) => {
-            if (res.status == "200") {
-              let booking = res.data[0];
-              booking.isBooked = true;
-              self.$store.commit('setBookingDetail', booking);
-              console.log(self.$store.state.bookingDetail)
-            }
-          })
-          .catch((err) => {
-            self.$store.commit('setBookingDetail', null);
+        let prevScannedID = self.$store.state.scannedID;
+        console.log(prevScannedID);
+        if (prevScannedID == '' && Object.keys(self.$store.state.bookingDetail).length === 0 && self.$store.state.bookingDetail.constructor === Object) {
+          self.$store.commit('setScannedID', scannedID);
+          let res = self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
+            .catch(e => {
+              console.log(e);
+            });
+          console.log(res.constructor === Object)
+          if(res.constructor === Object) {
+            let booking = res.data[0];
+            booking.isBooked = true;
+            self.$store.commit('setBookingDetail', booking);
             console.log(self.$store.state.bookingDetail)
-          });
+          }
+          self.$router.push(`mybooking`);
 
-        self.$router.push(`mybooking`);
+        } else if (prevScannedID != '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
+          console.log('Reload Page')
+          self.$store.commit('setScannedID', scannedID);
+          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`);
+          let booking = res.data[0];
+          booking.isBooked = true;
+          self.$store.commit('setBookingDetail', booking);
+          console.dir(self.$store.state.bookingDetail)
+          self.$router.push(`reload`);
+        }
         scannedID = '';
       } else {
         scannedArray.push(e.key);
@@ -54,37 +97,7 @@ export default {
   },
 
   async beforeCreate() {
-    let self = this;
-    let stationList;
-    let roleList;
-    //Retrieve Roles and store in roleList
-    await axios.get(`http://localhost:8000/roles`)
-      .then((res) => {
-        roleList = res.data[0];
-      })
-      .catch((err) => {
-        console.log(err)
-      });
-
-    //Retrieve Stations and store in Vuex Store
-    await axios.get(`http://localhost:8000/stations`)
-      .then((res) => {
-        stationList = res.data;
-        stationList.forEach(function(station) {
-          let tempRoleList = [];
-          roleList.forEach(function(role) {
-            if (role.station_id == station.station_id) {
-              tempRoleList.push(role);
-            }
-          });
-          station.roles = tempRoleList;
-          self.$store.commit('addStation', station);
-        });
-      })
-      .catch((err) => {
-        console.log(err)
-      });
-  }
+}
 }
 </script>
 

@@ -1,48 +1,56 @@
 <template>
-  <div id="app">
-    <section class="container is-centered myContainer" id="mySection">
-      <div class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
-        <div class="column is-12">
-          <div class="columns">
-            <div class="column is-3 is-offset-2">
-              <figure class="image is-3by4" id="roleImage">
-                <img :src="roleImagePath" />
-              </figure>
-            </div>
-            <div class="column is-6">
-              <div class="dialog">
-                <div class="has-text-left-desktop" id="dialogText">
-                  <p class="title">
-                    Come join me as a <b class="has-text-danger">{{ roleName }}</b>
-                  </p>
-                  <p class="title">
-                    at the <b class="has-text-danger">{{ stationName }}</b>
-                  </p>
-                  <p class="title">
-                    from <b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> !
-                  </p>
-                </div>
+<div id="app">
+  <section class="container is-centered myContainer" id="mySection">
+    <div class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
+      <div class="column is-12">
+        <div class="columns">
+          <div class="column is-3 is-offset-2">
+            <figure class="image is-3by4" id="roleImage">
+              <img :src="roleImagePath" />
+            </figure>
+          </div>
+          <div class="column is-6">
+            <div class="dialog">
+              <div class="has-text-left-desktop" id="dialogText">
+                <p class="title">
+                  Come join me as a <b class="has-text-danger">{{ roleName }}</b>
+                </p>
+                <p class="title">
+                  at the <b class="has-text-danger">{{ stationName }}</b>
+                </p>
+                <p class="title">
+                  from <b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> !
+                </p>
               </div>
             </div>
           </div>
         </div>
-        <div class="column">
-          <div class="columns is-centered has-text-centered">
-            <div class="column is-5">
-              <a class="button is-success is-rounded is-large is-fullwidth" @click="confirmBooking">Print receipt to confirm</a>
-            </div>
-            <div class="column is-5">
-              <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
-            </div>
+      </div>
+      <div class="column">
+        <div class="columns is-centered has-text-centered">
+          <div class="column is-5">
+            <a class="button is-success is-rounded is-large is-fullwidth" @click="confirmBooking">Print receipt to confirm</a>
+          </div>
+          <div class="column is-5">
+            <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
           </div>
         </div>
       </div>
-    </section>
-  </div>
+    </div>
+  </section>
+</div>
 </template>
 
-  <script>
-      import axios from "axios"
+<script>
+  //import isEmpty from 'dictionary-es-empty.js'
+      function WebFormData(ssId, sId, rId, rfid, status) {
+        this.session_id = ssId,
+        this.station_id = sId,
+        this.role_id = rId,
+        this.rfid = rfid,
+        this.status = status
+      }
+
       export default {
           methods: {
               confirmChange() {
@@ -52,10 +60,45 @@
                       confirmText: 'OK',
                       type: 'is-danger',
                       hasIcon: true,
-                      onConfirm: () => this.$toast.open('Booking Changed!')
+                      size: 'is-large',
+                      onConfirm: () => this.$router.push('station')
                   })
               },
-              confirmBooking(){
+              async confirmBooking(){
+                let self = this;
+                let bookingDetail = this.$store.state.bookingDetail;
+                console.dir(bookingDetail);
+                if (Object.keys(bookingDetail).length !== 0 && bookingDetail.constructor === Object) {
+                  let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
+                  let res = await self.$axios.$put('/bookings/cancelBooking',
+                      webFormData, {
+                        headers: {
+                          'Content-Type': 'application/json'
+                        }
+                      });
+                  console.log(res)
+                  webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+                  console.dir(webFormData);
+                  res = await self.$axios.$post('/bookings/makeBooking',
+                      webFormData, {
+                        headers: {
+                          'Content-Type': 'application/json'
+                        }
+                      });
+
+                  self.$router.push('/thankyou')
+                }else {
+                  let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+                  console.dir(webFormData);
+                  self.$axios.$post('/bookings/makeBooking',
+                      webFormData, {
+                        headers: {
+                          'Content-Type': 'application/json'
+                        }
+                      })
+                  self.$router.push('/thankyou')
+                }
+
               },
               setImagePath(role_id){
                 let self = this
@@ -84,26 +127,36 @@
             }
           },
           created() {
-            let booking;
             //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
-            axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
-              .then((res) => {
-                if(res.status == "200") {
-                  booking = this.$store.state.bookingDetail;
-                  this.role_id = booking.role_id;
-                  this.stationName = booking.station_name;
-                  this.sessionStartTime = booking.session_start;
-                  this.sessionEndTime = booking.session_end;
-                  this.stationID = booking.station_id;
-                  this.setImagePath(booking.role_id);
-                }
-                else {
-                  console.dir(res.status);
-                }
-              })
-              .catch((err) => {
-                console.log(err);
-              });
+            let booking = this.$store.state.bookingCart;
+            console.dir(booking)
+            //self.$store.commit('setBookingDetail', booking);
+            this.role_id = booking.role;
+            this.stationName = booking.station.station_name;
+            this.stationID = booking.station.station_id;
+            this.sessionStartTime = booking.timeSlot.session_start;
+            this.sessionEndTime = booking.timeSlot.session_end;
+            this.setImagePath(this.role_id);
+            // axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
+            //   .then((res) => {
+            //     if(res.status == "200") {
+            //       let booking = this.$store.state.bookingCart;
+            //       console.dir(booking)
+            //       //self.$store.commit('setBookingDetail', booking);
+            //       this.role_id = booking.role;
+            //       this.stationName = booking.station.station_name;
+            //       this.stationID = booking.station.station_id;
+            //       this.sessionStartTime = booking.selectedTimeSlot.session_start;
+            //       this.sessionEndTime = booking.selectedTimeSlot.session_end;
+            //       this.setImagePath(booking.role_id);
+            //     }
+            //     else {
+            //       console.dir(res.status);
+            //     }
+            //   })
+            //   .catch((err) => {
+            //     console.log(err);
+            //   });
           },
           beforeCreate() {
             this.$store.commit('setPageTitle', 'My Booking');

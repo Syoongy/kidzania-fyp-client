@@ -2,7 +2,7 @@
 <div id="app">
   <section class="myContainer container columns is-multiline is-centered">
     <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
-      <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}" >
+      <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}">
         <div class="media">
           <div class="media-left">
             <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
@@ -22,55 +22,30 @@
 </template>
 
 <script>
-import axios from "axios"
-
-function WebFormData(ssId, sId, rId, rfid, status) {
-  this.session_id = ssId,
-  this.station_id = sId,
-  this.role_id = rId,
-  this.rfid = rfid,
-  this.status = status
-}
-
 export default {
   methods: {
     isDisabled(noBooked, index) {
-      console.log(noBooked)
-      console.log(index)
+      console.log(noBooked);
+      console.log(index);
       if (noBooked == 0) {
         console.log('returning True');
-        return true
+        return true;
       } else {
-        return false
+        return false;
       }
     },
     selectTimeSlot(val, index) {
-      if(val.capacity - val.noBooked != 0) {
+      if (val.capacity - val.noBooked != 0) {
         this.selectedIndex = index;
         this.selectedTimeSlot = val;
         this.disabled = false;
       }
     },
     makeBooking() {
-      let self = this;
-      let webFormData = new WebFormData(self.selectedTimeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Booked");
-      console.dir(webFormData);
-      axios.post('http://localhost:8000/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-        .then((res) => {
-          console.log('SUCCESS')
-          this.socket.emit('makeBooking', self.selectedTimeSlot.session_id)
-          this.$router.push('mybooking/confirmation')
-        })
-        .catch((err) => {
-          console.log('FAILURE')
-        });
+      this.socket.emit('makeBooking', this.selectedTimeSlot.session_id);
+      this.$store.commit('addTimeSlotToCart', this.selectedTimeSlot);
+      this.$router.push('mybooking/confirmation');
       //this.$store.commit('setScannedID', '');
-
     }
   },
   data() {
@@ -82,19 +57,13 @@ export default {
       socket: null
     }
   },
-  beforeMount() {
+  async beforeMount() {
     let stationId = this.$store.state.bookingCart.station.station_id;
     let roleId = this.$store.state.bookingCart.role;
-    axios.get(`http://localhost:8000/sessions/${stationId}/${roleId}`)
-      .then((res) => {
-        console.log(res.data)
-        console.log('Success')
-        this.dataList = res.data
-      })
-      .catch((err) => {
-        console.log(err)
-      })
-
+    let res = await this.$axios.$get(`/sessions/${stationId}/${roleId}`)
+    console.log(res)
+    this.dataList = res
+    console.log(this.dataList)
     this.$store.commit('setSocket', this.$socket)
     this.socket = this.$store.state.io
     this.socket.on('newSlotBooked', (sessionId) => {
@@ -124,7 +93,7 @@ export default {
   color: white !important;
 }
 
-.disabledCard .media-content{
+.disabledCard .media-content {
   opacity: 0.5;
 }
 

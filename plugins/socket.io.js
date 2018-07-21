@@ -4,5 +4,5 @@ import VueSocketio from 'vue-socket.io'
 export default ({
 	app
 }) => {
-	Vue.use(VueSocketio, 'http://localhost:8000', app.store)
+	Vue.use(VueSocketio, process.env.API_URL + '/user', app.store)
 }

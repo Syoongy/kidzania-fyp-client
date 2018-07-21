@@ -33,6 +33,9 @@ const createStore = () => {
 			},
 			addRoleToCart: (state, payload) => {
 				state.bookingCart.role = payload;
+			},
+			addTimeSlotToCart: (state, payload) => {
+				state.bookingCart.timeSlot = payload;
 			}
 		}
 	})

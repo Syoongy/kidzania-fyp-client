@@ -2,7 +2,7 @@
   <div id="app">
     <section class="container myContainer">
       <div class="level">
-        <p id="text"> I want to <br /> become a(n): </p>
+        <p id="text"> I want to <br /> roleplay as a : </p>
 
         <div class="level-item" v-for="(role, index) in dataList" :key="index">
           <img :src="`${role.imagepath}`" />
@@ -16,7 +16,7 @@
           <img :src="`${stationData.imagepath}`" height="180" width="180" />
           <p>{{stationData.station_name}}</p>
         </div>
-        <p id="description" class="level-item">
+        <p id="description" class="level-item is-size-4">
           {{stationData.description}}
         </p>
       </div>

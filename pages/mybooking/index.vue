@@ -29,10 +29,10 @@
         <div class="column">
           <div class="columns is-centered has-text-centered">
             <div class="column is-5">
-              <a class="button is-success is-rounded is-large is-fullwidth">Print receipt</a>
+              <a class="button is-success is-rounded is-large is-fullwidth"><b>Print receipt</b></a>
             </div>
             <div class="column is-5">
-              <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange" >Change Booking</a>
+              <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange" ><b>Change Booking</b></a>
             </div>
           </div>
         </div>
@@ -43,90 +43,91 @@
           <p class="title">You currently have no Bookings</p>
           <br />
           <div class="columns is-centered has-text-centered">
-            <a class="button is-danger is-rounded is-large" @click="$router.push(`station`);">Start Booking</a>
+            <a class="button is-danger is-rounded is-large is-fullwidth" @click="$router.push(`station`);"><b>Start Booking</b></a>
           </div>
         </div>
       </div>
     </div>
     </section>
   </div>
-  </template>
+</template>
 
-  <script>
-      import axios from "axios"
-      export default {
-          methods: {
-              confirmChange() {
-                  this.$dialog.confirm({
-                      title: 'Oh no!',
-                      message: 'You can only have one booking at a time. Press OK to change your current booking',
-                      confirmText: 'OK',
-                      type: 'is-danger',
-                      hasIcon: true,
-                      onConfirm: () => this.$router.push('station')
-                  })
-              },
-              scanRFID(){
-              },
-              setImagePath(role_id){
-                let self = this
-                this.dataList.forEach(function(station) {
-                  if(station.station_id == self.stationID){
-                    station.roles.forEach(function(role) {
-                      if(role.role_id == role_id){
-                        self.roleImagePath = role.imagepath;
-                        self.roleName = role.role_name;
-                      }
-                    });
-                  }
-                });
-              }
-          },
-          data() {
-            return {
-              // role_id: this.$store.state.bookingDetail.role_id,
-              // roleName: "",
-              // stationName: this.$store.state.bookingDetail.station_name,
-              // isBooked: this.$store.state.bookingDetail.isBooked,
-              // sessionStartTime: this.$store.state.bookingDetail.session_start,
-              // sessionEndTime: this.$store.state.bookingDetail.session_end,
-              // roleImagePath:"",
-              // stationID: this.$store.state.bookingDetail.station_id,
-              // dataList: this.$store.state.stationsList
-              role_id: "",
-              roleName: "",
-              stationName: "",
-              isBooked: "",
-              sessionStartTime: "",
-              sessionEndTime: "",
-              roleImagePath:"",
-              stationID: "",
-              dataList: this.$store.state.stationsList
+<script>
+    export default {
+        methods: {
+            confirmChange() {
+                this.$dialog.confirm({
+                    title: 'Oh no!',
+                    message: 'You can only have one booking at a time. Press OK to change your current booking',
+                    confirmText: 'OK',
+                    type: 'is-danger',
+                    hasIcon: true,
+                    size: 'is-large',
+                    onConfirm: () => this.$router.push('station')
+                })
+            },
+            scanRFID(){
+            },
+            setImagePath(role_id){
+              let self = this
+              this.dataList.forEach(function(station) {
+                if(station.station_id == self.stationID){
+                  station.roles.forEach(function(role) {
+                    if(role.role_id == role_id){
+                      self.roleImagePath = role.imagepath;
+                      self.roleName = role.role_name;
+                    }
+                  });
+                }
+              });
             }
-          },
-          beforeCreate() {
-            this.$store.commit('setPageTitle', 'My Booking');
-          },
-          created() {
-            console.log('created');
-            let booking = this.$store.state.bookingDetail;
-            if(booking != null) {
-              this.role_id = booking.role_id;
-              this.stationName = booking.station_name;
-              this.sessionStartTime = booking.session_start;
-              this.sessionEndTime = booking.session_end;
-              this.stationID = booking.station_id;
-              this.setImagePath(booking.role_id);
-              this.isBooked = true;
-            }
-            else {
-              this.isBooked = false;
-            }
-          },
-          mounted() {
+        },
+        data() {
+          return {
+            // role_id: this.$store.state.bookingDetail.role_id,
+            // roleName: "",
+            // stationName: this.$store.state.bookingDetail.station_name,
+            // isBooked: this.$store.state.bookingDetail.isBooked,
+            // sessionStartTime: this.$store.state.bookingDetail.session_start,
+            // sessionEndTime: this.$store.state.bookingDetail.session_end,
+            // roleImagePath:"",
+            // stationID: this.$store.state.bookingDetail.station_id,
+            // dataList: this.$store.state.stationsList
+            role_id: "",
+            roleName: "",
+            stationName: "",
+            isBooked: "",
+            sessionStartTime: "",
+            sessionEndTime: "",
+            roleImagePath:"",
+            stationID: "",
+            dataList: this.$store.state.stationsList
           }
-      }
-  </script>
+        },
+        beforeCreate() {
+          this.$store.commit('setPageTitle', 'My Booking');
+        },
+        created() {
+          console.log('created');
+          let booking = this.$store.state.bookingDetail;
+          console.log(booking)
+          if(Object.keys(booking).length !== 0 && booking.constructor === Object) {
+            this.role_id = booking.role_id;
+            this.stationName = booking.station_name;
+            this.sessionStartTime = booking.session_start;
+            this.sessionEndTime = booking.session_end;
+            this.stationID = booking.station_id;
+            this.setImagePath(booking.role_id);
+            this.isBooked = true;
+          }
+          else {
+            this.isBooked = false;
+          }
+        },
+        mounted() {
+        }
+    }
+</script>
 
 <style scoped>
 .dialog {
