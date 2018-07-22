@@ -34,10 +34,24 @@ export default {
   },
   async mounted() {
     let self = this;
+    let imageData = await this.$axios.$get('http://ec2-52-33-181-199.us-west-2.compute.amazonaws.com:8000/stations/image')
+      .then(data => {
+        console.log(data.constructor.name)
+        let fileReader = new FileReader();
+        let image = new File([data], 'RetrievedFile.jpeg');
+        console.log(image.constructor.name)
+        let formData = new FormData();
+        formData.append('RetrievedFile', image);
+        self.$axios.$post('http://localhost:8080/api/getImages', formData)
+          .catch(err => {
+            console.log(err)
+          });
+      });
+
     let stationList;
     let roleList;
     //Retrieve Roles and store in roleList
-    roleList = await self.$axios.$get(`/roles`)
+    roleList = await this.$axios.$get(`/roles`)
       .catch(e => {
         console.log(e);
       });
@@ -93,7 +107,7 @@ export default {
       } else {
         scannedArray.push(e.key);
       }
-    };
+    }
   },
 
   async beforeCreate() {
