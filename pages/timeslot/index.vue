@@ -1,7 +1,24 @@
 <template>
 <div id="app">
   <section class="myContainer container columns is-multiline is-centered">
-    <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
+    <b-tabs type="is-boxed" class="container" expanded>
+        <b-tab-item :label="'Page ' + i" v-for="i in Math.ceil(dataList.length / 8)" :key="i" class="columns is-multiline is-centered myTabItem">
+          <div v-for="timeslot in dataList.slice((i-1)*8, i*8)" :key="timeslot.session_id" class="column is-one-quarter" :class="{selectedCard : selectedIndex == timeslot.session_id}">
+            <div class="card" @click="selectTimeSlot(timeslot, timeslot.session_id)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, timeslot.session_id)}">
+              <div class="media">
+                <div class="media-left">
+                  <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
+                  <p class="slots has-text-centered">slot(s) left</p>
+                </div>
+                <div class="media-content">
+                  <p class="timing" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}} - {{timeslot.session_end}}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </b-tab-item>
+    </b-tabs>
+    <!-- <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
       <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}">
         <div class="media">
           <div class="media-left">
@@ -13,9 +30,9 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="column is-one-third">
-      <a class="button is-danger is-rounded is-medium" @click="makeBooking()" :disabled="disabled">Book</a>
+    </div> -->
+    <div class="column is-one-third myBtn">
+      <a class="button is-danger is-rounded is-large is-fullwidth" @click="makeBooking()" :disabled="disabled">Book</a>
     </div>
   </section>
 </div>
@@ -86,6 +103,10 @@ export default {
 </script>
 
 <style scoped>
+.myTabItem {
+  height: 50vh;
+}
+
 .selectedCard .card,
 .selectedCard .media-content,
 .selectedCard .timing {
@@ -127,9 +148,6 @@ export default {
   align-items: center;
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  margin-top: 40px;
-  height: 130px;
 }
 
 a {
@@ -155,8 +173,6 @@ a {
 .slots {
   font-size: 12px;
   font-weight: bold;
-  padding-top: 0px;
-  padding-left: 5px;
 }
 
 .media-left {
@@ -177,5 +193,11 @@ a {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  margin: auto;
+}
+
+.myBtn {
+  position: fixed;
+  bottom: 25vh;
 }
 </style>

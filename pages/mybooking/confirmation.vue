@@ -61,7 +61,7 @@
                       type: 'is-danger',
                       hasIcon: true,
                       size: 'is-large',
-                      onConfirm: () => this.$router.push('station')
+                      onConfirm: () => this.$router.push('/station')
                   })
               },
               async confirmBooking(){

@@ -1,7 +1,12 @@
 <template>
 <div id="myLayout">
   <section class="hero" v-if="$store.state.scannedID != ''">
-    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'"></i>
+    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
+      <p class="has-text-white is-size-4 has-text-right has-text-weight-bold backBtnTxt">
+        BACK
+      </p>
+    </i>
+
     <div class="hero-body" v-if="$store.state.pageName != ''">
       <h1 id="title">
           {{$store.state.pageName}}
@@ -71,7 +76,7 @@ export default {
               console.log(e);
             });
           console.log(res.constructor === Object)
-          if(res.constructor === Object) {
+          if (res.constructor === Object) {
             let booking = res.data[0];
             booking.isBooked = true;
             self.$store.commit('setBookingDetail', booking);
@@ -96,8 +101,7 @@ export default {
     };
   },
 
-  async beforeCreate() {
-}
+  async beforeCreate() {}
 }
 </script>
 
@@ -121,9 +125,14 @@ body,
 
 .mdi {
   position: fixed;
-  margin-left: 10px;
-  margin-top: 3px;
+  margin-left: 1vh;
+  margin-top: 0.2vh;
   cursor: pointer;
+}
+
+.backBtnTxt {
+  float: right;
+  margin: 1.5vh auto;
 }
 
 .hero {
