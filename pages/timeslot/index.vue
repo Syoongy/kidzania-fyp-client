@@ -1,22 +1,31 @@
 <template>
 <div id="app">
   <section class="myContainer container columns is-multiline is-centered">
-    <b-tabs type="is-boxed" class="container" expanded>
-        <b-tab-item :label="'Page ' + i" v-for="i in Math.ceil(dataList.length / 8)" :key="i" class="columns is-multiline is-centered myTabItem">
-          <div v-for="timeslot in dataList.slice((i-1)*8, i*8)" :key="timeslot.session_id" class="column is-one-quarter" :class="{selectedCard : selectedIndex == timeslot.session_id}">
-            <div class="card" @click="selectTimeSlot(timeslot, timeslot.session_id)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, timeslot.session_id)}">
-              <div class="media">
-                <div class="media-left">
-                  <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
-                  <p class="slots has-text-centered">slot(s) left</p>
+    <b-tabs type="is-toggle" size="is-large" class="container" expanded>
+      <b-tab-item :label="'Page ' + i" v-for="i in Math.ceil(dataList.length / 8)" :key="i" class="columns is-multiline is-centered myTabItem">
+        <div v-for="timeslot in dataList.slice((i-1)*8, i*8)" :key="timeslot.session_id" class="column is-one-quarter" :class="{selectedCard : selectedIndex == timeslot.session_id}">
+          <div class="card myCard" @click="selectTimeSlot(timeslot, timeslot.session_id)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, timeslot.session_id)}">
+            <div class="media fullHeight">
+              <div class="media-left fullHeight">
+                <div class="centerTextBox" v-if="timeslot.session_id != selectedTimeSlot.session_id">
+                  <p class="has-text-weight-bold is-size-4 has-text-centered">{{timeslot.capacity - timeslot.noBooked}}</p>
                 </div>
-                <div class="media-content">
-                  <p class="timing" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}} - {{timeslot.session_end}}</p>
+                <div class="centerTextBox" v-if="timeslot.session_id != selectedTimeSlot.session_id">
+                  <p class="has-text-centered is-size-5">slot(s) left</p>
                 </div>
+                <div class="centerTextBox fullHeight" v-if="timeslot.session_id == selectedTimeSlot.session_id">
+                  <p class="has-text-centered has-text-weight-bold is-size-4" >✓</p>
+                </div>
+              </div>
+              <div class="media-content centerTextBox fullHeight">
+                <p class="has-text-centered has-text-weight-bold is-size-4" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}}<br />
+                   - <br />
+                   {{timeslot.session_end}}</p>
               </div>
             </div>
           </div>
-        </b-tab-item>
+        </div>
+      </b-tab-item>
     </b-tabs>
     <!-- <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
       <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}">
@@ -42,8 +51,6 @@
 export default {
   methods: {
     isDisabled(noBooked, index) {
-      console.log(noBooked);
-      console.log(index);
       if (noBooked == 0) {
         console.log('returning True');
         return true;
@@ -69,7 +76,7 @@ export default {
     return {
       dataList: [],
       selectedIndex: null,
-      selectedTimeSlot: null,
+      selectedTimeSlot: {},
       disabled: true,
       socket: null
     }
@@ -107,11 +114,20 @@ export default {
   height: 50vh;
 }
 
+.myCard {
+  background: linear-gradient(to right, #23d160 50%, white 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  transition: all 0.3s ease;
+}
+
 .selectedCard .card,
 .selectedCard .media-content,
 .selectedCard .timing {
-  background-color: #23d160;
+  /* background-color: #23d160; */
   color: white !important;
+  background-position: left bottom;
+  /* transition: width 0.5s; */
 }
 
 .disabledCard .media-content {
@@ -157,39 +173,33 @@ a {
 
 .timing {
   color: #4d4d4d;
-  font-size: 18px;
-  font-weight: bold;
-  padding-top: 20px;
   word-wrap: break-word;
 }
 
-.noOfSlots {
-  font-size: 16px;
-  font-weight: bold;
-  padding-top: 5px;
-  padding-left: 18px;
+.fullHeight {
+  height: 100% !important;
 }
 
-.slots {
-  font-size: 12px;
-  font-weight: bold;
+.centerTextBox {
+  height: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .media-left {
   background-color: #23d160;
-  height: 70px;
-  width: 45px;
+  width: 25%;
   color: white;
+  margin-right: 0;
 }
 
 .media-content {
-  height: 70px;
-  width: 205px;
+  width: 20vh;
 }
 
 .card {
-  width: 250px;
-  height: 70px;
+  height: 50%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;

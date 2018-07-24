@@ -24,8 +24,10 @@
 
 <script>
 //import axios from "axios"
+import isEmpty from "~/plugins/dictionary-is-empty.js"
 let scannedArray = [];
 let scannedID = '';
+
 export default {
   methods: {
     createTimer() {
@@ -41,27 +43,31 @@ export default {
     let self = this;
     let stationList;
     let roleList;
-    //Retrieve Roles and store in roleList
-    roleList = await self.$axios.$get(`/roles`)
-      .catch(e => {
-        console.log(e);
-      });
-    console.dir('hi');
-    console.dir(roleList);
-    roleList = roleList[0];
-    //Retrieve Stations and store in Vuex Store
-    stationList = await this.$axios.$get(`/stations`);
-    stationList.forEach(function(station) {
-      let tempRoleList = [];
-      roleList.forEach(function(role) {
-        if (role.station_id == station.station_id) {
-          tempRoleList.push(role);
-        }
-      });
-      station.roles = tempRoleList;
-      self.$store.commit('addStation', station);
-    })
-    this.createTimer()
+    if(this.$store.state.stationsList.length === 0) {
+      //Retrieve Roles and store in roleList
+      roleList = await self.$axios.$get(`/roles`)
+        .catch(e => {
+          console.log(e);
+        });
+      console.dir('hi');
+      console.dir(roleList);
+      roleList = roleList[0];
+      //Retrieve Stations and store in Vuex Store
+      stationList = await this.$axios.$get(`/stations`);
+      stationList.forEach(function(station) {
+        let tempRoleList = [];
+        roleList.forEach(function(role) {
+          if (role.station_id == station.station_id) {
+            tempRoleList.push(role);
+          }
+        });
+        station.roles = tempRoleList;
+        self.$store.commit('addStation', station);
+      })
+    }
+
+
+    //Scanning Function
     window.onkeypress = async function(e) {
       if (e.key == 'Enter') {
         scannedID = scannedArray.join('');
@@ -69,7 +75,7 @@ export default {
         console.dir(scannedID);
         let prevScannedID = self.$store.state.scannedID;
         console.log(prevScannedID);
-        if (prevScannedID == '' && Object.keys(self.$store.state.bookingDetail).length === 0 && self.$store.state.bookingDetail.constructor === Object) {
+        if (prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) {
           self.$store.commit('setScannedID', scannedID);
           let res = self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
             .catch(e => {

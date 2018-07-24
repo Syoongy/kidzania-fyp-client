@@ -42,127 +42,128 @@
 </template>
 
 <script>
-  //import isEmpty from 'dictionary-es-empty.js'
-      function WebFormData(ssId, sId, rId, rfid, status) {
-        this.session_id = ssId,
-        this.station_id = sId,
-        this.role_id = rId,
-        this.rfid = rfid,
-        this.status = status
-      }
+import isEmpty from "~/plugins/dictionary-is-empty.js"
 
-      export default {
-          methods: {
-              confirmChange() {
-                  this.$dialog.confirm({
-                      title: 'Oh no!',
-                      message: 'You can only have one booking at a time. Press OK to change your current booking',
-                      confirmText: 'OK',
-                      type: 'is-danger',
-                      hasIcon: true,
-                      size: 'is-large',
-                      onConfirm: () => this.$router.push('/station')
-                  })
-              },
-              async confirmBooking(){
-                let self = this;
-                let bookingDetail = this.$store.state.bookingDetail;
-                console.dir(bookingDetail);
-                if (Object.keys(bookingDetail).length !== 0 && bookingDetail.constructor === Object) {
-                  let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
-                  let res = await self.$axios.$put('/bookings/cancelBooking',
-                      webFormData, {
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      });
-                  console.log(res)
-                  webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
-                  console.dir(webFormData);
-                  res = await self.$axios.$post('/bookings/makeBooking',
-                      webFormData, {
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      });
+function WebFormData(ssId, sId, rId, rfid, status) {
+  this.session_id = ssId,
+    this.station_id = sId,
+    this.role_id = rId,
+    this.rfid = rfid,
+    this.status = status
+}
 
-                  self.$router.push('/thankyou')
-                }else {
-                  let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
-                  console.dir(webFormData);
-                  self.$axios.$post('/bookings/makeBooking',
-                      webFormData, {
-                        headers: {
-                          'Content-Type': 'application/json'
-                        }
-                      })
-                  self.$router.push('/thankyou')
-                }
-
-              },
-              setImagePath(role_id){
-                let self = this
-                this.dataList.forEach(function(station) {
-                  if(station.station_id == self.stationID){
-                    station.roles.forEach(function(role) {
-                      if(role.role_id == role_id){
-                        self.roleImagePath = require('~/static/' + role.imagepath);
-                        self.roleName = role.role_name;
-                      }
-                    });
-                  }
-                });
-              }
-          },
-          data() {
-            return {
-              role_id: "",
-              roleName: "",
-              stationName: "",
-              sessionStartTime: "",
-              sessionEndTime:"",
-              roleImagePath:"",
-              stationID:"",
-              dataList: this.$store.state.stationsList
+export default {
+  methods: {
+    confirmChange() {
+      this.$dialog.confirm({
+        title: 'Oh no!',
+        message: 'You can only have one booking at a time. Press OK to change your current booking',
+        confirmText: 'OK',
+        type: 'is-danger',
+        hasIcon: true,
+        size: 'is-large',
+        onConfirm: () => this.$router.push('/station')
+      })
+    },
+    async confirmBooking() {
+      let self = this;
+      let bookingDetail = this.$store.state.bookingDetail;
+      console.dir(bookingDetail);
+      if (!isEmpty(self.$store.state.bookingDetail)) {
+        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
+        let res = await self.$axios.$put('/bookings/cancelBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
             }
-          },
-          created() {
-            //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
-            let booking = this.$store.state.bookingCart;
-            console.dir(booking)
-            //self.$store.commit('setBookingDetail', booking);
-            this.role_id = booking.role;
-            this.stationName = booking.station.station_name;
-            this.stationID = booking.station.station_id;
-            this.sessionStartTime = booking.timeSlot.session_start;
-            this.sessionEndTime = booking.timeSlot.session_end;
-            this.setImagePath(this.role_id);
-            // axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
-            //   .then((res) => {
-            //     if(res.status == "200") {
-            //       let booking = this.$store.state.bookingCart;
-            //       console.dir(booking)
-            //       //self.$store.commit('setBookingDetail', booking);
-            //       this.role_id = booking.role;
-            //       this.stationName = booking.station.station_name;
-            //       this.stationID = booking.station.station_id;
-            //       this.sessionStartTime = booking.selectedTimeSlot.session_start;
-            //       this.sessionEndTime = booking.selectedTimeSlot.session_end;
-            //       this.setImagePath(booking.role_id);
-            //     }
-            //     else {
-            //       console.dir(res.status);
-            //     }
-            //   })
-            //   .catch((err) => {
-            //     console.log(err);
-            //   });
-          },
-          beforeCreate() {
-            this.$store.commit('setPageTitle', 'My Booking');
-          },
+          });
+        console.log(res)
+        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+        console.dir(webFormData);
+        res = await self.$axios.$post('/bookings/makeBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+        self.$router.push('/thankyou')
+      } else {
+        let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+        console.dir(webFormData);
+        self.$axios.$post('/bookings/makeBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        self.$router.push('/thankyou')
       }
-  </script>
+
+    },
+    setImagePath(role_id) {
+      let self = this
+      this.dataList.forEach(function(station) {
+        if (station.station_id == self.stationID) {
+          station.roles.forEach(function(role) {
+            if (role.role_id == role_id) {
+              self.roleImagePath = require('~/static/' + role.imagepath);
+              self.roleName = role.role_name;
+            }
+          });
+        }
+      });
+    }
+  },
+  data() {
+    return {
+      role_id: "",
+      roleName: "",
+      stationName: "",
+      sessionStartTime: "",
+      sessionEndTime: "",
+      roleImagePath: "",
+      stationID: "",
+      dataList: this.$store.state.stationsList
+    }
+  },
+  created() {
+    //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
+    let booking = this.$store.state.bookingCart;
+    console.dir(booking)
+    //self.$store.commit('setBookingDetail', booking);
+    this.role_id = booking.role;
+    this.stationName = booking.station.station_name;
+    this.stationID = booking.station.station_id;
+    this.sessionStartTime = booking.timeSlot.session_start;
+    this.sessionEndTime = booking.timeSlot.session_end;
+    this.setImagePath(this.role_id);
+    // axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
+    //   .then((res) => {
+    //     if(res.status == "200") {
+    //       let booking = this.$store.state.bookingCart;
+    //       console.dir(booking)
+    //       //self.$store.commit('setBookingDetail', booking);
+    //       this.role_id = booking.role;
+    //       this.stationName = booking.station.station_name;
+    //       this.stationID = booking.station.station_id;
+    //       this.sessionStartTime = booking.selectedTimeSlot.session_start;
+    //       this.sessionEndTime = booking.selectedTimeSlot.session_end;
+    //       this.setImagePath(booking.role_id);
+    //     }
+    //     else {
+    //       console.dir(res.status);
+    //     }
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
+  },
+  beforeCreate() {
+    this.$store.commit('setPageTitle', 'My Booking');
+  },
+}
+</script>
 
 <style scoped>
 .dialog {
