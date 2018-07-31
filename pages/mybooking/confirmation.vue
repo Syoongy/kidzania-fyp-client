@@ -29,7 +29,7 @@
       <div class="column">
         <div class="columns is-centered has-text-centered">
           <div class="column is-5">
-            <a class="button is-success is-rounded is-large is-fullwidth" @click="confirmBooking">Print receipt to confirm</a>
+            <a class="button is-success is-rounded is-large is-fullwidth" @click="bookingPopUp">Print receipt to confirm</a>
           </div>
           <div class="column is-5">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
@@ -38,21 +38,32 @@
       </div>
     </div>
   </section>
+  <b-modal :active.sync="isComponentModalActive" @click="onClose()" has-modal-card>
+    <modal-form></modal-form>
+  </b-modal>
 </div>
 </template>
 
 <script>
 import isEmpty from "~/plugins/dictionary-is-empty.js"
-
-function WebFormData(ssId, sId, rId, rfid, status) {
-  this.session_id = ssId,
-    this.station_id = sId,
-    this.role_id = rId,
-    this.rfid = rfid,
-    this.status = status
+const ModalForm = {
+  template: `
+  <div class="modal-card" style="width: auto">
+      <header class="modal-card-head has-background-success has-text-white">
+          <p class="modal-card-title is-size-4">Confirm Booking</p>
+      </header>
+      <section class="modal-card-body is-size-4">
+        <b>Please scan your bracelet to confirm the booking!</b>
+      </section>
+      <footer class="modal-card-foot has-background-success">
+      </footer>
+  </div>
+  `
 }
-
 export default {
+  components: {
+    ModalForm
+  },
   methods: {
     confirmChange() {
       this.$dialog.confirm({
@@ -65,41 +76,9 @@ export default {
         onConfirm: () => this.$router.push('/station')
       })
     },
-    async confirmBooking() {
-      let self = this;
-      let bookingDetail = this.$store.state.bookingDetail;
-      console.dir(bookingDetail);
-      if (!isEmpty(self.$store.state.bookingDetail)) {
-        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
-        let res = await self.$axios.$put('/bookings/cancelBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-        console.log(res)
-        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
-        console.dir(webFormData);
-        res = await self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          });
-
-        self.$router.push('/thankyou')
-      } else {
-        let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
-        console.dir(webFormData);
-        self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-        self.$router.push('/thankyou')
-      }
-
+    bookingPopUp() {
+      this.isComponentModalActive = true
+      this.$store.commit('setConfirming', true)
     },
     setImagePath(role_id) {
       let self = this
@@ -107,7 +86,7 @@ export default {
         if (station.station_id == self.stationID) {
           station.roles.forEach(function(role) {
             if (role.role_id == role_id) {
-              self.roleImagePath = require('~/static/' + role.imagepath);
+              self.roleImagePath = role.imagepath;
               self.roleName = role.role_name;
             }
           });
@@ -117,6 +96,7 @@ export default {
   },
   data() {
     return {
+      isComponentModalActive: false,
       role_id: "",
       roleName: "",
       stationName: "",
@@ -128,40 +108,21 @@ export default {
     }
   },
   created() {
-    //axios.get(`http://localhost:8000/bookings/checkBooking/${this.$store.state.scannedID}`)
     let booking = this.$store.state.bookingCart;
     console.dir(booking)
-    //self.$store.commit('setBookingDetail', booking);
     this.role_id = booking.role;
     this.stationName = booking.station.station_name;
     this.stationID = booking.station.station_id;
     this.sessionStartTime = booking.timeSlot.session_start;
     this.sessionEndTime = booking.timeSlot.session_end;
     this.setImagePath(this.role_id);
-    // axios.get(`http://localhost:8000/bookings/${this.$store.state.scannedID}`)
-    //   .then((res) => {
-    //     if(res.status == "200") {
-    //       let booking = this.$store.state.bookingCart;
-    //       console.dir(booking)
-    //       //self.$store.commit('setBookingDetail', booking);
-    //       this.role_id = booking.role;
-    //       this.stationName = booking.station.station_name;
-    //       this.stationID = booking.station.station_id;
-    //       this.sessionStartTime = booking.selectedTimeSlot.session_start;
-    //       this.sessionEndTime = booking.selectedTimeSlot.session_end;
-    //       this.setImagePath(booking.role_id);
-    //     }
-    //     else {
-    //       console.dir(res.status);
-    //     }
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
   },
   beforeCreate() {
     this.$store.commit('setPageTitle', 'My Booking');
   },
+  onDestroy() {
+    this.isComponentModalActive = false;
+  }
 }
 </script>
 

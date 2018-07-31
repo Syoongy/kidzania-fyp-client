@@ -9,7 +9,8 @@ const createStore = () => {
 			stationsList: [],
 			role: '',
 			bookingCart: {},
-			bookingDetail: {}
+			bookingDetail: {},
+			confirming: false
 		},
 		mutations: {
 			setScannedID(state, payload) {
@@ -36,7 +37,10 @@ const createStore = () => {
 			},
 			addTimeSlotToCart: (state, payload) => {
 				state.bookingCart.timeSlot = payload;
-			}
+			},
+			setConfirming: (state, payload) => {
+				state.confirming = payload;
+			},
 		}
 	})
 }

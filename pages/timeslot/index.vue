@@ -14,13 +14,12 @@
                   <p class="has-text-centered is-size-5">slot(s) left</p>
                 </div>
                 <div class="centerTextBox fullHeight" v-if="timeslot.session_id == selectedTimeSlot.session_id">
-                  <p class="has-text-centered has-text-weight-bold is-size-4" >✓</p>
+                  <p class="has-text-centered has-text-weight-bold is-size-4">✓</p>
                 </div>
               </div>
               <div class="media-content centerTextBox fullHeight">
-                <p class="has-text-centered has-text-weight-bold is-size-4" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}}<br />
-                   - <br />
-                   {{timeslot.session_end}}</p>
+                <p class="has-text-centered has-text-weight-bold is-size-4" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}}<br /> - <br /> {{timeslot.session_end}}
+                </p>
               </div>
             </div>
           </div>
@@ -82,9 +81,8 @@ export default {
     }
   },
   async beforeMount() {
-    let stationId = this.$store.state.bookingCart.station.station_id;
     let roleId = this.$store.state.bookingCart.role;
-    let res = await this.$axios.$get(`/sessions/${stationId}/${roleId}`)
+    let res = await this.$axios.$get(`/sessions/getSessionList/${roleId}`)
     console.log(res)
     this.dataList = res
     console.log(this.dataList)
@@ -102,9 +100,6 @@ export default {
   },
   beforeCreate() {
     this.$store.commit("setPageTitle", "Select Timeslot");
-  },
-  created() {
-
   }
 };
 </script>
@@ -119,6 +114,12 @@ export default {
   background-size: 200% 100%;
   background-position: right bottom;
   transition: all 0.3s ease;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: auto;
+  width: 100%;
 }
 
 .selectedCard .card,
@@ -198,16 +199,17 @@ a {
   width: 20vh;
 }
 
-.card {
+/* .card {
   height: 50%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
   margin: auto;
-}
+
+}*/
 
 .myBtn {
   position: fixed;
-  bottom: 25vh;
+  bottom: 20vh;
 }
 </style>

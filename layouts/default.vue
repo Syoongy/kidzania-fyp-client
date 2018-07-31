@@ -28,10 +28,53 @@ import isEmpty from "~/plugins/dictionary-is-empty.js"
 let scannedArray = [];
 let scannedID = '';
 
+function WebFormData(ssId, sId, rId, rfid, status) {
+  this.session_id = ssId,
+    this.station_id = sId,
+    this.role_id = rId,
+    this.rfid = rfid,
+    this.status = status
+}
+
 export default {
   methods: {
     createTimer() {
       this.myTimer = setInterval(console.log('hi'), 1000)
+    },
+    async confirmBooking() {
+      let self = this;
+      let bookingDetail = this.$store.state.bookingDetail;
+      console.dir(bookingDetail);
+      if (!isEmpty(self.$store.state.bookingDetail)) {
+        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
+        let res = await self.$axios.$put('/bookings/cancelBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        console.log(res);
+        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+        console.dir(webFormData);
+        res = await self.$axios.$post('/bookings/makeBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+        self.$router.push('/thankyou');
+      } else {
+        let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+        console.dir(webFormData);
+        self.$axios.$post('/bookings/makeBooking',
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+        self.$router.push('/thankyou');
+      }
+      self.$store.commit('setConfirming', false)
     }
   },
   data() {
@@ -43,21 +86,22 @@ export default {
     let self = this;
     let stationList;
     let roleList;
-    if(this.$store.state.stationsList.length === 0) {
+    if (this.$store.state.stationsList.length === 0) {
       //Retrieve Roles and store in roleList
       roleList = await self.$axios.$get(`/roles`)
         .catch(e => {
           console.log(e);
         });
-      console.dir('hi');
       console.dir(roleList);
       roleList = roleList[0];
       //Retrieve Stations and store in Vuex Store
       stationList = await this.$axios.$get(`/stations`);
       stationList.forEach(function(station) {
+        station.imagepath = process.env.API_URL + "/stations/getImage/" + station.station_id;
         let tempRoleList = [];
         roleList.forEach(function(role) {
           if (role.station_id == station.station_id) {
+            role.imagepath = process.env.API_URL + "/roles/getImage/" + role.role_id;
             tempRoleList.push(role);
           }
         });
@@ -75,30 +119,42 @@ export default {
         console.dir(scannedID);
         let prevScannedID = self.$store.state.scannedID;
         console.log(prevScannedID);
-        if (prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) {
+        console.log(self.$store.state.confirming);
+        console.log(self.$router.currentRoute.path !== '/mybooking/confirmation' && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !==
+          '/mybooking') || (prevScannedID === scannedID && self.$router.currentRoute
+          .path === '/')))));
+        if (self.$router.currentRoute.path !== '/mybooking/confirmation' && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !==
+            '/mybooking') || (prevScannedID === scannedID && self.$router.currentRoute
+            .path === '/'))))) {
           self.$store.commit('setScannedID', scannedID);
-          let res = self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
+          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
             .catch(e => {
               console.log(e);
             });
-          console.log(res.constructor === Object)
-          if (res.constructor === Object) {
-            let booking = res.data[0];
-            booking.isBooked = true;
-            self.$store.commit('setBookingDetail', booking);
-            console.log(self.$store.state.bookingDetail)
+          console.log(res)
+          let booking = {}
+          if (res !== undefined) {
+            booking = res[0];
           }
+          self.$store.commit('setBookingDetail', booking);
+          console.log(self.$store.state.bookingDetail)
           self.$router.push(`mybooking`);
-
-        } else if (prevScannedID != '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
+        } else if (prevScannedID !== '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
           console.log('Reload Page')
           self.$store.commit('setScannedID', scannedID);
-          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`);
-          let booking = res.data[0];
-          booking.isBooked = true;
+          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
+            .catch(e => {
+              console.log(e);
+            });
+          let booking = {}
+          if (res !== undefined) {
+            booking = res[0];
+          }
           self.$store.commit('setBookingDetail', booking);
           console.dir(self.$store.state.bookingDetail)
           self.$router.push(`reload`);
+        } else if (prevScannedID === scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming) {
+          self.confirmBooking();
         }
         scannedID = '';
       } else {
@@ -113,6 +169,19 @@ export default {
 
 <style>
 html {
+  -webkit-touch-callout: none;
+  /* iOS Safari */
+  -webkit-user-select: none;
+  /* Safari */
+  -khtml-user-select: none;
+  /* Konqueror HTML */
+  -moz-user-select: none;
+  /* Firefox */
+  -ms-user-select: none;
+  /* Internet Explorer/Edge */
+  user-select: none;
+  /* Non-prefixed version, currently
+     supported by Chrome and Opera */
   background-color: #F8FAF4;
   overflow: hidden;
   height: 100%;
