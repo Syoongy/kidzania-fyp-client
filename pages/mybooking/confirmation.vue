@@ -1,7 +1,7 @@
 <template>
 <div id="app">
   <section class="container is-centered myContainer" id="mySection">
-    <div v-if="isBooked" class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
+    <div class="columns is-desktop is-multiline is-vcentered" id="bookedWrapper">
       <div class="column is-12">
         <div class="columns">
           <div class="column is-3 is-offset-2">
@@ -29,32 +29,41 @@
       <div class="column">
         <div class="columns is-centered has-text-centered">
           <div class="column is-5">
-            <a class="button is-success is-rounded is-large is-fullwidth"><b>Print receipt</b></a>
+            <a class="button is-success is-rounded is-large is-fullwidth" @click="bookingPopUp">Print receipt to confirm</a>
           </div>
           <div class="column is-5">
-            <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange"><b>Change Booking</b></a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div v-else class="level myLevel">
-      <div class="level-item has-text-centered">
-        <div>
-          <p class="title myTitle">You currently have no Bookings</p>
-          <div class="columns is-centered has-text-centered">
-            <a class="button is-danger is-rounded is-large is-fullwidth" @click="$router.push(`station`);"><b>Start Booking</b></a>
+            <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
           </div>
         </div>
       </div>
     </div>
   </section>
+  <b-modal :active.sync="isComponentModalActive" @click="onClose()" has-modal-card>
+    <modal-form></modal-form>
+  </b-modal>
 </div>
 </template>
 
 <script>
 import isEmpty from "~/plugins/dictionary-is-empty.js"
-
+const ModalForm = {
+  template: `
+  <div class="modal-card" style="width: auto">
+      <header class="modal-card-head has-background-success has-text-white">
+          <p class="modal-card-title is-size-4">Confirm Booking</p>
+      </header>
+      <section class="modal-card-body is-size-4">
+        <b>Please scan your bracelet to confirm the booking!</b>
+      </section>
+      <footer class="modal-card-foot has-background-success">
+      </footer>
+  </div>
+  `
+}
 export default {
+  components: {
+    ModalForm
+  },
   methods: {
     confirmChange() {
       this.$dialog.confirm({
@@ -64,10 +73,13 @@ export default {
         type: 'is-danger',
         hasIcon: true,
         size: 'is-large',
-        onConfirm: () => this.$router.push('station')
+        onConfirm: () => this.$router.push('/station')
       })
     },
-    scanRFID() {},
+    bookingPopUp() {
+      this.isComponentModalActive = true
+      this.$store.commit('setConfirming', true)
+    },
     setImagePath(role_id) {
       let self = this
       this.dataList.forEach(function(station) {
@@ -84,10 +96,10 @@ export default {
   },
   data() {
     return {
+      isComponentModalActive: false,
       role_id: "",
       roleName: "",
       stationName: "",
-      isBooked: "",
       sessionStartTime: "",
       sessionEndTime: "",
       roleImagePath: "",
@@ -95,26 +107,22 @@ export default {
       dataList: this.$store.state.stationsList
     }
   },
+  created() {
+    let booking = this.$store.state.bookingCart;
+    console.dir(booking)
+    this.role_id = booking.role;
+    this.stationName = booking.station.station_name;
+    this.stationID = booking.station.station_id;
+    this.sessionStartTime = booking.timeSlot.session_start;
+    this.sessionEndTime = booking.timeSlot.session_end;
+    this.setImagePath(this.role_id);
+  },
   beforeCreate() {
     this.$store.commit('setPageTitle', 'My Booking');
   },
-  created() {
-    console.log('created');
-    let booking = this.$store.state.bookingDetail;
-    console.log(booking)
-    if (!isEmpty(booking)) {
-      this.role_id = booking.role_id;
-      this.stationName = booking.station_name;
-      this.sessionStartTime = booking.session_start;
-      this.sessionEndTime = booking.session_end;
-      this.stationID = booking.station_id;
-      this.setImagePath(booking.role_id);
-      this.isBooked = true;
-    } else {
-      this.isBooked = false;
-    }
-  },
-  mounted() {}
+  onDestroy() {
+    this.isComponentModalActive = false;
+  }
 }
 </script>
 
@@ -154,9 +162,5 @@ export default {
 
 #bookedWrapper {
   height: 100%;
-}
-
-.myTitle {
-  margin-bottom: 20%;
 }
 </style>

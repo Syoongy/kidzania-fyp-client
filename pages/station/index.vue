@@ -1,6 +1,6 @@
 <template>
 <div id="app">
-  <section class="mySection container columns is-multiline">
+  <section class="myContainer mySection container columns is-multiline">
 
     <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
       <div @click="addStationToCart(station)" class="stationBox">
@@ -25,9 +25,19 @@ export default {
   beforeCreate() {
     this.$store.commit('setPageTitle', 'Select Station');
   },
+  mounted() {
+    let self = this;
+    let stations = this.$store.state.stationsList;
+    console.log(stations);
+    stations.forEach(function(station) {
+      if(station.is_active == 1) {
+        self.dataList.push(station)
+      }
+    })
+  },
   data() {
     return {
-      dataList: this.$store.state.stationsList
+      dataList: []
     }
   }
 }

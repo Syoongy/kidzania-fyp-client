@@ -7,7 +7,10 @@ const createStore = () => {
 			io: {},
 			pageName: '',
 			stationsList: [],
-			bookingCart: {}
+			role: '',
+			bookingCart: {},
+			bookingDetail: {},
+			confirming: false
 		},
 		mutations: {
 			setScannedID(state, payload) {
@@ -15,6 +18,9 @@ const createStore = () => {
 			},
 			setPageTitle(state, payload) {
 				state.pageName = payload;
+			},
+			setBookingDetail(state, payload) {
+				state.bookingDetail = payload;
 			},
 			setSocket: (state, socket) => {
 				state.io = socket;
@@ -28,7 +34,13 @@ const createStore = () => {
 			},
 			addRoleToCart: (state, payload) => {
 				state.bookingCart.role = payload;
-			}
+			},
+			addTimeSlotToCart: (state, payload) => {
+				state.bookingCart.timeSlot = payload;
+			},
+			setConfirming: (state, payload) => {
+				state.confirming = payload;
+			},
 		}
 	})
 }

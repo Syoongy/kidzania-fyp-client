@@ -1,8 +1,33 @@
 <template>
-<div>
-  <section class="container columns is-multiline is-centered">
-    <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
-      <div class="card" @click="selectTimeSlot(timeslot, index)">
+<div id="app">
+  <section class="myContainer container columns is-multiline is-centered">
+    <b-tabs type="is-toggle" size="is-large" class="container" expanded>
+      <b-tab-item :label="'Page ' + i" v-for="i in Math.ceil(dataList.length / 8)" :key="i" class="columns is-multiline is-centered myTabItem">
+        <div v-for="timeslot in dataList.slice((i-1)*8, i*8)" :key="timeslot.session_id" class="column is-one-quarter" :class="{selectedCard : selectedIndex == timeslot.session_id}">
+          <div class="card myCard" @click="selectTimeSlot(timeslot, timeslot.session_id)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, timeslot.session_id)}">
+            <div class="media fullHeight">
+              <div class="media-left fullHeight">
+                <div class="centerTextBox" v-if="timeslot.session_id != selectedTimeSlot.session_id">
+                  <p class="has-text-weight-bold is-size-4 has-text-centered">{{timeslot.capacity - timeslot.noBooked}}</p>
+                </div>
+                <div class="centerTextBox" v-if="timeslot.session_id != selectedTimeSlot.session_id">
+                  <p class="has-text-centered is-size-5">slot(s) left</p>
+                </div>
+                <div class="centerTextBox fullHeight" v-if="timeslot.session_id == selectedTimeSlot.session_id">
+                  <p class="has-text-centered has-text-weight-bold is-size-4">✓</p>
+                </div>
+              </div>
+              <div class="media-content centerTextBox fullHeight">
+                <p class="has-text-centered has-text-weight-bold is-size-4" :class="{selectedCard : selectedIndex == timeslot.session_id}">{{timeslot.session_start}}<br /> - <br /> {{timeslot.session_end}}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </b-tab-item>
+    </b-tabs>
+    <!-- <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
+      <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}">
         <div class="media">
           <div class="media-left">
             <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
@@ -13,84 +38,105 @@
           </div>
         </div>
       </div>
-    </div>
-    <div class="column is-one-third">
-      <a class="button is-danger is-rounded is-medium" @click="makeBooking()" :disabled="disabled">Book</a>
+    </div> -->
+    <div class="column is-one-third myBtn">
+      <a class="button is-danger is-rounded is-large is-fullwidth" @click="makeBooking()" :disabled="disabled">Book</a>
     </div>
   </section>
 </div>
 </template>
 
 <script>
-import axios from "axios"
-
-function WebFormData(ssId, sId, rName, rfid, status) {
-  this.session_id = ssId,
-    this.station_id = sId,
-    this.role_name = rName,
-    this.rfid = rfid,
-    this.status = status
-}
-
 export default {
   methods: {
+    isDisabled(noBooked, index) {
+      if (noBooked == 0) {
+        console.log('returning True');
+        return true;
+      } else {
+        return false;
+      }
+    },
     selectTimeSlot(val, index) {
-      this.selectedIndex = index;
-      this.selectedTimeSlot = val;
-      this.disabled = false;
+      if (val.capacity - val.noBooked != 0) {
+        this.selectedIndex = index;
+        this.selectedTimeSlot = val;
+        this.disabled = false;
+      }
     },
     makeBooking() {
-      let self = this;
-      let webFormData = new WebFormData(self.selectedTimeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Booked");
-      console.dir(webFormData);
-      axios.post('http://localhost:8000/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
-        .then((res) => {
-          console.log('SUCCESS')
-        })
-        .catch((err) => {
-          console.log('FAILURE')
-        });
-      this.$router.push('thankyou')
+      this.socket.emit('makeBooking', this.selectedTimeSlot.session_id);
+      this.$store.commit('addTimeSlotToCart', this.selectedTimeSlot);
+      this.$router.push('mybooking/confirmation');
+      //this.$store.commit('setScannedID', '');
     }
   },
   data() {
     return {
       dataList: [],
       selectedIndex: null,
-      selectedTimeSlot: null,
-      disabled: true
+      selectedTimeSlot: {},
+      disabled: true,
+      socket: null
     }
+  },
+  async beforeMount() {
+    let roleId = this.$store.state.bookingCart.role;
+    let res = await this.$axios.$get(`/sessions/getSessionList/${roleId}`)
+    console.log(res)
+    this.dataList = res
+    console.log(this.dataList)
+    this.$store.commit('setSocket', this.$socket)
+    this.socket = this.$store.state.io
+    this.socket.on('newSlotBooked', (sessionId) => {
+      console.log('newSlotBooked Received')
+      this.dataList.forEach(function(timeSlot) {
+        if (sessionId == timeSlot.session_id) {
+          timeSlot.noBooked += 1
+        }
+      })
+    })
+
   },
   beforeCreate() {
     this.$store.commit("setPageTitle", "Select Timeslot");
-  },
-  created() {
-    let stationId = this.$store.state.bookingCart.station.station_id;
-    let roleId = this.$store.state.bookingCart.role;
-    axios.get(`http://localhost:8000/sessions/${stationId}/${roleId}`)
-      .then((res) => {
-        console.log(res.data)
-        console.log('Success')
-        this.dataList = res.data
-      })
-      .catch((err) => {
-        console.log(err)
-      })
   }
 };
 </script>
 
 <style scoped>
+.myTabItem {
+  height: 50vh;
+}
+
+.myCard {
+  background: linear-gradient(to right, #23d160 50%, white 50%);
+  background-size: 200% 100%;
+  background-position: right bottom;
+  transition: all 0.3s ease;
+  height: 50%;
+  display: flex;
+  flex-direction: column;
+  flex-wrap: wrap;
+  margin: auto;
+  width: 100%;
+}
+
 .selectedCard .card,
 .selectedCard .media-content,
 .selectedCard .timing {
-  background-color: #23d160;
+  /* background-color: #23d160; */
   color: white !important;
+  background-position: left bottom;
+  /* transition: width 0.5s; */
+}
+
+.disabledCard .media-content {
+  opacity: 0.5;
+}
+
+.disabledCard .media-left {
+  background-color: #ff3860;
 }
 
 .noSelection {
@@ -119,9 +165,6 @@ export default {
   align-items: center;
   display: flex;
   flex-direction: column;
-  flex-wrap: wrap;
-  margin-top: 40px;
-  height: 130px;
 }
 
 a {
@@ -131,43 +174,42 @@ a {
 
 .timing {
   color: #4d4d4d;
-  font-size: 18px;
-  font-weight: bold;
-  padding-top: 20px;
   word-wrap: break-word;
 }
 
-.noOfSlots {
-  font-size: 16px;
-  font-weight: bold;
-  padding-top: 5px;
-  padding-left: 18px;
+.fullHeight {
+  height: 100% !important;
 }
 
-.slots {
-  font-size: 12px;
-  font-weight: bold;
-  padding-top: 0px;
-  padding-left: 5px;
+.centerTextBox {
+  height: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .media-left {
   background-color: #23d160;
-  height: 70px;
-  width: 45px;
+  width: 25%;
   color: white;
+  margin-right: 0;
 }
 
 .media-content {
-  height: 70px;
-  width: 205px;
+  width: 20vh;
 }
 
-.card {
-  width: 250px;
-  height: 70px;
+/* .card {
+  height: 50%;
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
+  margin: auto;
+
+}*/
+
+.myBtn {
+  position: fixed;
+  bottom: 20vh;
 }
 </style>
