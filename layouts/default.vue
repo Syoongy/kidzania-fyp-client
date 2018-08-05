@@ -97,11 +97,11 @@ export default {
       //Retrieve Stations and store in Vuex Store
       stationList = await this.$axios.$get(`/stations`);
       stationList.forEach(function(station) {
-        station.imagepath = process.env.API_URL + "/stations/getImage/" + station.station_id;
+        station.imagepath = process.env.API_URL + "/images/getStationImage/" + station.station_id;
         let tempRoleList = [];
         roleList.forEach(function(role) {
           if (role.station_id == station.station_id) {
-            role.imagepath = process.env.API_URL + "/roles/getImage/" + role.role_id;
+            role.imagepath = process.env.API_URL + "/images/getRoleImage/" + role.role_id;
             tempRoleList.push(role);
           }
         });
