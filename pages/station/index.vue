@@ -4,7 +4,7 @@
 
     <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
       <div @click="addStationToCart(station)" class="stationBox">
-        <img :src="`${station.imagepath}`"/>
+        <img :src="`${station.imagepath}`" />
         <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
         <a class="button is-danger is-rounded is-medium">{{station.station_name}}</a>
       </div>
@@ -19,7 +19,12 @@ export default {
   methods: {
     addStationToCart(station) {
       this.$store.commit('addStationToCart', station);
-      this.$router.push({ name: 'role-id', query: { stationID: station.station_id }});
+      this.$router.push({
+        name: 'role-id',
+        query: {
+          stationID: station.station_id
+        }
+      });
     }
   },
   beforeCreate() {
@@ -29,11 +34,11 @@ export default {
     let self = this;
     let stations = this.$store.state.stationsList;
     console.log(stations);
-    stations.forEach(function(station) {
-      if(station.is_active == 1) {
-        self.dataList.push(station)
+    for (let station in stations) {
+      if (stations[station].is_active == 1) {
+        self.dataList.push(stations[station])
       }
-    })
+    }
   },
   data() {
     return {
@@ -55,7 +60,6 @@ export default {
   display: flex;
   flex-direction: column;
   flex-wrap: wrap;
-  margin-bottom: 40px;
 }
 
 img {
@@ -81,6 +85,9 @@ a {
 
 .mySection {
   overflow-y: auto;
+  justify-content: center;
+  align-items: center;
+  padding: 5vh 0;
 }
 
 .stationBox {

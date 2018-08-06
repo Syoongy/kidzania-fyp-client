@@ -1,8 +1,10 @@
 import Vuex from 'vuex'
+const cookieparser = require('cookieparser')
 
 const createStore = () => {
 	return new Vuex.Store({
 		state: {
+			auth: null,
 			scannedID: '',
 			io: {},
 			pageName: '',
@@ -13,6 +15,9 @@ const createStore = () => {
 			confirming: false
 		},
 		mutations: {
+			updateAuthState (state, data) {
+				state.auth = data
+			},
 			setScannedID(state, payload) {
 				state.scannedID = payload;
 			},
@@ -38,9 +43,24 @@ const createStore = () => {
 			addTimeSlotToCart: (state, payload) => {
 				state.bookingCart.timeSlot = payload;
 			},
+			setBookingCart: (state, payload) => {
+				state.bookingCart = payload;
+			},
 			setConfirming: (state, payload) => {
 				state.confirming = payload;
 			},
+		},
+		actions: {
+			nuxtServerInit ({commit}, {req}) {
+				let accessToken = null
+				if (req.headers.cookie) {
+					let parsed = cookieparser.parse(req.headers.cookie)
+					if (parsed.auth) {
+						accessToken = JSON.parse(parsed.auth)
+					}
+				}
+				commit('updateAuthState', accessToken)
+			}
 		}
 	})
 }

@@ -1,11 +1,9 @@
 <template>
 <div id="myLayout">
-  <section class="hero" v-if="$store.state.scannedID != ''">
-    <i class="mdi mdi-arrow-left mdi-48px mdi-light" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
-      <p class="has-text-white is-size-4 has-text-right has-text-weight-bold backBtnTxt">
-        BACK
-      </p>
-    </i>
+  <section class="hero myHero" v-if="$store.state.scannedID != ''">
+    <div class="backBtnTxt" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
+      <img src="baseline_arrow_back_white_48dp.png" />
+    </div>
 
     <div class="hero-body" v-if="$store.state.pageName != ''">
       <h1 id="title">
@@ -23,7 +21,8 @@
 </template>
 
 <script>
-//import axios from "axios"
+import jwtDecode from 'jwt-decode'
+import Cookie from 'js-cookie'
 import isEmpty from "~/plugins/dictionary-is-empty.js"
 let scannedArray = [];
 let scannedID = '';
@@ -74,7 +73,35 @@ export default {
           })
         self.$router.push('/thankyou');
       }
-      self.$store.commit('setConfirming', false)
+      self.$store.commit('setScannedID', '');
+      self.$store.commit('setBookingCart', {});
+      self.$store.commit('setConfirming', false);
+    },
+    async login() {
+      try {
+        let res = await this.$axios.post(`/auth/login`, {
+          username: 'guest',
+          password: 'password'
+        });
+        if (res.status === 200) {
+          const auth = res.data;
+          this.$store.commit('updateAuthState', auth);
+          Cookie.set('auth', auth);
+          this.$axios.setToken(auth.token, 'Bearer');
+        }
+      } catch (err) {
+        let msg = 'Internal Server Error. Please Contact Administrator.';
+        if (err.response.data) {
+          msg = err.response.data.message
+        }
+        this.$dialog.alert({
+          title: `Login Failed`,
+          message: msg,
+          type: 'is-danger',
+          hasIcon: true,
+          iconPack: 'mdi'
+        });
+      }
     }
   },
   data() {
@@ -86,6 +113,17 @@ export default {
     let self = this;
     let stationList;
     let roleList;
+    let token = this.$store.state.auth;
+    if (token !== null) {
+      // let decoded = jwtDecode(token);
+      // let current_time = Date.now() / 1000;
+      // if (jwt.exp < current_time) {
+      //   self.login();
+      // }
+    } else {
+      self.login();
+    }
+
     if (this.$store.state.stationsList.length === 0) {
       //Retrieve Roles and store in roleList
       roleList = await self.$axios.$get(`/roles`)
@@ -97,11 +135,11 @@ export default {
       //Retrieve Stations and store in Vuex Store
       stationList = await this.$axios.$get(`/stations`);
       stationList.forEach(function(station) {
-        station.imagepath = process.env.API_URL + "/stations/getImage/" + station.station_id;
+        station.imagepath = process.env.API_URL + "/image/getStationImage/" + station.station_id;
         let tempRoleList = [];
         roleList.forEach(function(role) {
           if (role.station_id == station.station_id) {
-            role.imagepath = process.env.API_URL + "/roles/getImage/" + role.role_id;
+            role.imagepath = process.env.API_URL + "/image/getRoleImage/" + role.role_id;
             tempRoleList.push(role);
           }
         });
@@ -161,9 +199,7 @@ export default {
         scannedArray.push(e.key);
       }
     };
-  },
-
-  async beforeCreate() {}
+  }
 }
 </script>
 
@@ -206,12 +242,18 @@ body,
 }
 
 .backBtnTxt {
-  float: right;
-  margin: 1.5vh auto;
+  position: fixed;
+  top: 1vh;
+  left: 1vw;
+  height: 36px;
 }
 
 .hero {
   background-color: #03A9F4;
+}
+
+.myHero {
+  height: 12vh;
 }
 
 .material-icons {
@@ -229,14 +271,14 @@ body,
   color: white;
   position: relative;
   font-weight: bold;
-  font-size: 36px;
+  font-size: 3.5rem;
 }
 
 .myContainer {
   background-color: #FFF;
   height: 90%;
   width: 85%;
-  margin: 5% auto 5% auto;
+  margin: 4% auto;
   box-shadow: 0px 6px 12px rgba(0, 0, 0, 0.16);
   border-radius: 15px;
 }

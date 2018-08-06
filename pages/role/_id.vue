@@ -1,27 +1,27 @@
 <template>
-  <div id="app">
-    <section class="container myContainer">
-      <div class="level">
-        <p id="text"> I want to <br /> roleplay as a : </p>
-
-        <div class="level-item" v-for="(role, index) in dataList" :key="index">
-          <img :src="`${role.imagepath}`" />
-          <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
-        </div>
-
+<div id="app">
+  <section class="container myContainer">
+    <div class="level myLevel">
+      <div class="level-item">
+        <p class="is-size-2 has-text-weight-bold has-text-centered"> I want to <br /> roleplay as a(n) : </p>
       </div>
-      <hr />
-      <div class="level" id="stationDetails">
-        <div id="selectedStation" class="level-item">
-          <img :src="`${stationData.imagepath}`" height="180" width="180" />
-          <p>{{stationData.station_name}}</p>
-        </div>
-        <p id="description" class="level-item is-size-4">
-          {{stationData.description}}
-        </p>
+
+      <div class="level-item" v-for="(role, index) in dataList" :key="index">
+        <img :src="`${role.imagepath}`" class="is-4by3" />
+        <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
       </div>
-    </section>
-  </div>
+
+    </div>
+    <hr />
+    <div class="level" id="stationDetails">
+      <div class="level-item">
+        <img :src="`${stationData.imagepath}`" class="is-square" />
+        <p class="is-size-5 has-text-weight-bold">{{stationData.station_name}}</p>
+      </div>
+      <p id="description" class="has-text-left level-item is-size-4">{{stationData.description}}</p>
+    </div>
+  </section>
+</div>
 </template>
 
 <script>
@@ -64,11 +64,10 @@ export default {
 </script>
 
 <style scoped>
-/* #logo {
-  position: absolute;
-  right: 30px;
-  bottom: 20px;
-} */
+.myLevel {
+  margin-bottom: 0;
+  height: 50%;
+}
 
 #text {
   color: #4D4D4D;
@@ -90,6 +89,10 @@ a {
   flex-wrap: wrap;
 }
 
+.level-item img {
+  height: 20vh;
+}
+
 #selectedStation {
   font-weight: bold;
   color: #4D4D4D;
@@ -99,18 +102,13 @@ a {
 
 #description {
   color: #4D4D4D;
-  font-size: 18px;
-  font-weight: 400;
-  padding-top: 30px;
-  margin-right: 180px;
-  width: 100px;
+  width: 50%!important;
   word-wrap: break-word;
+  padding-right: 7rem;
+  padding-left: 4rem;
 }
 
-#stationDetails {}
-
-img {
-  height: 188px;
-  width: 188px;
+#stationDetails .level-item {
+  width: 35%;
 }
 </style>

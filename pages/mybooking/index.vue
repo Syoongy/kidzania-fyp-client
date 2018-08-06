@@ -29,7 +29,7 @@
       <div class="column">
         <div class="columns is-centered has-text-centered">
           <div class="column is-5">
-            <a class="button is-success is-rounded is-large is-fullwidth"><b>Print receipt</b></a>
+            <a class="button is-success is-rounded is-large is-fullwidth"><b>Reprint receipt</b></a>
           </div>
           <div class="column is-5">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange"><b>Change Booking</b></a>
@@ -40,7 +40,7 @@
     <div v-else class="level myLevel">
       <div class="level-item has-text-centered">
         <div>
-          <p class="title myTitle">You currently have no Bookings</p>
+          <p class="title myTitle">You currently have no Booking</p>
           <div class="columns is-centered has-text-centered">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="$router.push(`station`);"><b>Start Booking</b></a>
           </div>
