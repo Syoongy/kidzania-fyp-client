@@ -27,18 +27,16 @@ export default {
       });
     }
   },
-  beforeCreate() {
-    this.$store.commit('setPageTitle', 'Select Station');
-  },
   mounted() {
     let self = this;
     let stations = this.$store.state.stationsList;
     console.log(stations);
     for (let station in stations) {
       if (stations[station].is_active == 1) {
-        self.dataList.push(stations[station])
+        self.dataList.push(stations[station]);
       }
     }
+    this.$store.commit('setPageTitle', 'Select Station');
   },
   data() {
     return {

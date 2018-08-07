@@ -38,32 +38,17 @@
       </div>
     </div>
   </section>
-  <b-modal :active.sync="isComponentModalActive" @click="onClose()" has-modal-card>
-    <modal-form></modal-form>
+  <b-modal :active.sync="isComponentModalActive" @click="onClose()">
+    <b-message title="Confirm Booking" type="is-success" size="is-large" :closable="false">
+      Please scan your bracelet to confirm the booking!
+    </b-message>
   </b-modal>
 </div>
 </template>
 
 <script>
 import isEmpty from "~/plugins/dictionary-is-empty.js"
-const ModalForm = {
-  template: `
-  <div class="modal-card" style="width: auto">
-      <header class="modal-card-head has-background-success has-text-white">
-          <p class="modal-card-title is-size-4">Confirm Booking</p>
-      </header>
-      <section class="modal-card-body is-size-4">
-        <b>Please scan your bracelet to confirm the booking!</b>
-      </section>
-      <footer class="modal-card-foot has-background-success">
-      </footer>
-  </div>
-  `
-}
 export default {
-  components: {
-    ModalForm
-  },
   methods: {
     confirmChange() {
       this.$dialog.confirm({
@@ -117,7 +102,7 @@ export default {
     this.sessionEndTime = booking.timeSlot.session_end;
     this.setImagePath(this.role_id);
   },
-  beforeCreate() {
+  mounted() {
     this.$store.commit('setPageTitle', 'My Booking');
   },
   onDestroy() {

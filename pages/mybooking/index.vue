@@ -95,11 +95,7 @@ export default {
       dataList: this.$store.state.stationsList
     }
   },
-  beforeCreate() {
-    this.$store.commit('setPageTitle', 'My Booking');
-  },
   created() {
-    console.log('created');
     let booking = this.$store.state.bookingDetail;
     console.log(booking)
     if (!isEmpty(booking)) {
@@ -114,7 +110,26 @@ export default {
       this.isBooked = false;
     }
   },
-  mounted() {}
+  mounted() {
+    let self = this;
+    this.$store.commit('setPageTitle', 'My Booking');
+    // let timer;
+    //
+    // function timeOutUser() {
+    //   self.$router.push('/')
+    // }
+    //
+    // function resetTimer() {
+    //   console.log('hi')
+    //   clearTimeout(timer);
+    //   timer = setTimeout(timeOutUser, 10000); // time is in milliseconds
+    // }
+    // document.onload = resetTimer;
+    // document.onmousemove = resetTimer;
+    // document.onmousedown = resetTimer; // catches touchscreen presses as well
+    // document.ontouchstart = resetTimer; // catches touchscreen swipes as well
+    // document.onclick = resetTimer; // catches touchpad clicks as well
+  }
 }
 </script>
 

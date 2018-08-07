@@ -1,14 +1,16 @@
 <template>
 <div id="myLayout">
   <section class="hero myHero" v-if="$store.state.scannedID != ''">
-    <div class="backBtnTxt" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
-      <img src="baseline_arrow_back_white_48dp.png" />
-    </div>
-
     <div class="hero-body" v-if="$store.state.pageName != ''">
       <h1 id="title">
           {{$store.state.pageName}}
       </h1>
+      <div class="backBtnTxt" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
+        <img src="baseline_arrow_back_white_48dp.png" />
+      </div>
+      <div class="exitBtnTxt" @click="$router.push('/');" v-if="$store.state.pageName != 'Thank You'">
+        <img src="exit-run.png" />
+      </div>
     </div>
   </section>
   <nuxt/>
@@ -37,9 +39,6 @@ function WebFormData(ssId, sId, rId, rfid, status) {
 
 export default {
   methods: {
-    createTimer() {
-      this.myTimer = setInterval(console.log('hi'), 1000)
-    },
     async confirmBooking() {
       let self = this;
       let bookingDetail = this.$store.state.bookingDetail;
@@ -73,9 +72,6 @@ export default {
           })
         self.$router.push('/thankyou');
       }
-      self.$store.commit('setScannedID', '');
-      self.$store.commit('setBookingCart', {});
-      self.$store.commit('setConfirming', false);
     },
     async login() {
       try {
@@ -104,25 +100,38 @@ export default {
       }
     }
   },
-  data() {
-    return {
-      myTimer: ''
-    }
-  },
   async mounted() {
     let self = this;
-    let stationList;
-    let roleList;
+    let timer;
+
+    function timeOutUser() {
+      self.$router.push('/')
+    }
+
+    function resetTimer() {
+      clearTimeout(timer);
+      timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
+    }
+    document.onload = resetTimer;
+    document.onmousemove = resetTimer;
+    document.onmousedown = resetTimer; // catches touchscreen presses as well
+    document.ontouchstart = resetTimer; // catches touchscreen swipes as well
+    document.onclick = resetTimer; // catches touchpad clicks as well
+    document.onkeypress = resetTimer;
+
     let token = this.$store.state.auth;
-    if (token !== null) {
-      // let decoded = jwtDecode(token);
-      // let current_time = Date.now() / 1000;
-      // if (jwt.exp < current_time) {
-      //   self.login();
-      // }
-    } else {
+    console.log(token[0]);
+    console.log(jwtDecode(token.token).exp)
+    let decoded = jwtDecode(token.token);
+    let current_time = Date.now().valueOf() / 1000;
+    if (token === null) {
+      self.login();
+    } else if (decoded.exp < current_time && decoded.exp !== undefined) {
       self.login();
     }
+
+    let stationList;
+    let roleList;
 
     if (this.$store.state.stationsList.length === 0) {
       //Retrieve Roles and store in roleList
@@ -134,20 +143,19 @@ export default {
       roleList = roleList[0];
       //Retrieve Stations and store in Vuex Store
       stationList = await this.$axios.$get(`/stations`);
-      stationList.forEach(function(station) {
+      for (let station of stationList) {
         station.imagepath = process.env.API_URL + "/image/getStationImage/" + station.station_id;
         let tempRoleList = [];
-        roleList.forEach(function(role) {
+        for (let role of roleList) {
           if (role.station_id == station.station_id) {
             role.imagepath = process.env.API_URL + "/image/getRoleImage/" + role.role_id;
             tempRoleList.push(role);
           }
-        });
+        }
         station.roles = tempRoleList;
         self.$store.commit('addStation', station);
-      })
+      }
     }
-
 
     //Scanning Function
     window.onkeypress = async function(e) {
@@ -158,27 +166,36 @@ export default {
         let prevScannedID = self.$store.state.scannedID;
         console.log(prevScannedID);
         console.log(self.$store.state.confirming);
-        console.log(self.$router.currentRoute.path !== '/mybooking/confirmation' && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !==
-          '/mybooking') || (prevScannedID === scannedID && self.$router.currentRoute
-          .path === '/')))));
         if (self.$router.currentRoute.path !== '/mybooking/confirmation' && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !==
             '/mybooking') || (prevScannedID === scannedID && self.$router.currentRoute
             .path === '/'))))) {
+          for (let b of self.$store.state.allBookingDetails) {
+            self.$store.commit('popBookingDetails');
+          }
           self.$store.commit('setScannedID', scannedID);
           let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
             .catch(e => {
               console.log(e);
             });
-          console.log(res)
-          let booking = {}
+          let booking = {};
           if (res !== undefined) {
-            booking = res[0];
+            let bookings = res;
+            for (let b of bookings) {
+              console.log(b)
+              self.$store.commit('addAllBookingDetails', b);
+              if (b.booking_status === 'Confirmed') {
+                booking = b;
+              }
+            }
           }
           self.$store.commit('setBookingDetail', booking);
-          console.log(self.$store.state.bookingDetail)
+          console.log(self.$store.state.bookingDetail);
           self.$router.push(`mybooking`);
         } else if (prevScannedID !== '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
           console.log('Reload Page')
+          for (let b of self.$store.state.allBookingDetails) {
+            self.$store.commit('popBookingDetails');
+          }
           self.$store.commit('setScannedID', scannedID);
           let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
             .catch(e => {
@@ -186,13 +203,29 @@ export default {
             });
           let booking = {}
           if (res !== undefined) {
-            booking = res[0];
+            let bookings = res;
+            for (let b of bookings) {
+              console.log(b)
+              self.$store.commit('addAllBookingDetails', b);
+              if (b.booking_status === 'Confirmed') {
+                booking = b;
+              }
+            }
           }
           self.$store.commit('setBookingDetail', booking);
           console.dir(self.$store.state.bookingDetail)
           self.$router.push(`reload`);
-        } else if (prevScannedID === scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming) {
+        } else if (prevScannedID === scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
           self.confirmBooking();
+        } else if (prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
+          self.$dialog.alert({
+            title: 'Error',
+            message: 'You have scanned a different bracelet',
+            confirmText: 'Exit',
+            size: 'is-large',
+            type: 'is-danger',
+            onConfirm: () => self.$router.push('/')
+          })
         }
         scannedID = '';
       } else {
@@ -245,7 +278,12 @@ body,
   position: fixed;
   top: 1vh;
   left: 1vw;
-  height: 36px;
+}
+
+.exitBtnTxt {
+  position: fixed;
+  top: 1vh;
+  right: 1vw;
 }
 
 .hero {

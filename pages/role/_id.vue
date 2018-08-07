@@ -8,7 +8,7 @@
 
       <div class="level-item" v-for="(role, index) in dataList" :key="index">
         <img :src="`${role.imagepath}`" class="is-4by3" />
-        <a class="button is-danger is-rounded is-medium" @click="addRoleToCart(role)">{{role.role_name}}</a>
+        <a class="button is-danger is-rounded is-medium" @click.prevent="addRoleToCart(role)" :disabled="isDisable(role.role_id)">{{role.role_name}}</a>
       </div>
 
     </div>
@@ -25,40 +25,76 @@
 </template>
 
 <script>
+import isEmpty from "~/plugins/dictionary-is-empty.js"
+
 export default {
-  /*asyncData({
-    query
-  }) {
-    return {
-      sID: query.stationID
-    }
-  },*/
   data() {
     return {
       dataList: [],
-      stationData: ''
+      stationData: {},
+      limitList: [],
+      bookingDetail: this.$store.state.bookingDetail,
+      allBookings: this.$store.state.allBookingDetails
     }
   },
   methods: {
     getData(station) {
       let self = this;
-      station.roles.forEach(function(role) {
+      for (let role of station.roles) {
         self.dataList.push(role);
-      });
+      }
     },
     addRoleToCart(role) {
-      this.$store.commit('addRoleToCart', role.role_id);
-      this.$router.push('timeslot');
+      let check = true;
+      let noBooked = 0;
+      for (let b of this.allBookings) {
+        if (b.role_id === role.role_id && b.booking_status === 'Admitted') {
+          noBooked += 1;
+        }
+      }
+      if (this.limitList.find(i => i.role_id === role.role_id) !== undefined) {
+        let roleLimit = this.limitList.find(i => i.role_id === role.role_id).booking_limit;
+        if (noBooked >= roleLimit) {
+          check = false
+        }
+      }
+      if (check === true) {
+        this.$store.commit('addRoleToCart', role.role_id);
+        this.$router.push('timeslot');
+      }
+    },
+    isDisable(role_id) {
+      let check = true;
+      let noBooked = 0;
+      for (let b of this.allBookings) {
+        if (b.role_id === role_id && b.booking_status === 'Admitted') {
+          noBooked += 1;
+        }
+      }
+      if (this.limitList.find(i => i.role_id === role_id) !== undefined) {
+        let roleLimit = this.limitList.find(i => i.role_id === role_id).booking_limit;
+        if (noBooked >= roleLimit) {
+          check = false
+        }
+      }
+      if (!check) {
+        return true;
+      }
+      return false;
     }
   },
-  beforeCreate() {
-    this.$store.commit('setPageTitle', 'Select Role');
-  },
-  mounted() {
+  async mounted() {
     let currStation = this.$store.state.bookingCart.station;
+    let res = await this.$axios.$get(`/limit/checkRoleLimit/${currStation.station_id}`)
+      .catch(e => {
+        console.log(e);
+      });
+    console.log(res)
+    this.limitList = res;
     console.dir(currStation);
     this.getData(currStation);
     this.stationData = currStation;
+    this.$store.commit('setPageTitle', 'Select Role');
   }
 }
 </script>
@@ -102,7 +138,7 @@ a {
 
 #description {
   color: #4D4D4D;
-  width: 50%!important;
+  width: 50% !important;
   word-wrap: break-word;
   padding-right: 7rem;
   padding-left: 4rem;
