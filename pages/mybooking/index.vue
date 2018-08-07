@@ -29,7 +29,7 @@
       <div class="column">
         <div class="columns is-centered has-text-centered">
           <div class="column is-5">
-            <a class="button is-success is-rounded is-large is-fullwidth"><b>Print receipt</b></a>
+            <a class="button is-success is-rounded is-large is-fullwidth"><b>Reprint receipt</b></a>
           </div>
           <div class="column is-5">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange"><b>Change Booking</b></a>
@@ -40,7 +40,7 @@
     <div v-else class="level myLevel">
       <div class="level-item has-text-centered">
         <div>
-          <p class="title myTitle">You currently have no Bookings</p>
+          <p class="title myTitle">You currently have no Booking</p>
           <div class="columns is-centered has-text-centered">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="$router.push(`station`);"><b>Start Booking</b></a>
           </div>
@@ -95,11 +95,7 @@ export default {
       dataList: this.$store.state.stationsList
     }
   },
-  beforeCreate() {
-    this.$store.commit('setPageTitle', 'My Booking');
-  },
   created() {
-    console.log('created');
     let booking = this.$store.state.bookingDetail;
     console.log(booking)
     if (!isEmpty(booking)) {
@@ -114,7 +110,26 @@ export default {
       this.isBooked = false;
     }
   },
-  mounted() {}
+  mounted() {
+    let self = this;
+    this.$store.commit('setPageTitle', 'My Booking');
+    // let timer;
+    //
+    // function timeOutUser() {
+    //   self.$router.push('/')
+    // }
+    //
+    // function resetTimer() {
+    //   console.log('hi')
+    //   clearTimeout(timer);
+    //   timer = setTimeout(timeOutUser, 10000); // time is in milliseconds
+    // }
+    // document.onload = resetTimer;
+    // document.onmousemove = resetTimer;
+    // document.onmousedown = resetTimer; // catches touchscreen presses as well
+    // document.ontouchstart = resetTimer; // catches touchscreen swipes as well
+    // document.onclick = resetTimer; // catches touchpad clicks as well
+  }
 }
 </script>
 

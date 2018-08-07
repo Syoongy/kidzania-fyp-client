@@ -15,15 +15,13 @@ export default {
   methods: {
 
   },
-  beforeCreate() {
-    this.$store.commit("setPageTitle", "Thank You");
-  },
   mounted() {
     let self = this;
+    this.$store.commit('setScannedID', '');
+    this.$store.commit('setPageTitle', '');
 
     function returnToHome() {
       self.$router.push('/');
-      self.$store.commit("setPageTitle", "");
     }
     setTimeout(returnToHome, 5000)
   }

@@ -26,19 +26,6 @@
         </div>
       </b-tab-item>
     </b-tabs>
-    <!-- <div v-for="(timeslot, index) in dataList" :key="index" class="column is-one-third" :class="{selectedCard : selectedIndex == index}">
-      <div class="card" @click="selectTimeSlot(timeslot, index)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, index)}">
-        <div class="media">
-          <div class="media-left">
-            <p class="noOfSlots">{{timeslot.capacity - timeslot.noBooked}}</p>
-            <p class="slots">slot(s) left</p>
-          </div>
-          <div class="media-content">
-            <p class="timing" :class="{selectedCard : selectedIndex == index}">{{timeslot.session_start}} - {{timeslot.session_end}}</p>
-          </div>
-        </div>
-      </div>
-    </div> -->
     <div class="column is-one-third myBtn">
       <a class="button is-danger is-rounded is-large is-fullwidth" @click="makeBooking()" :disabled="disabled">Book</a>
     </div>
@@ -65,10 +52,11 @@ export default {
       }
     },
     makeBooking() {
-      this.socket.emit('makeBooking', this.selectedTimeSlot.session_id);
-      this.$store.commit('addTimeSlotToCart', this.selectedTimeSlot);
-      this.$router.push('mybooking/confirmation');
-      //this.$store.commit('setScannedID', '');
+      if (this.disabled === false) {
+        this.socket.emit('makeBooking', this.selectedTimeSlot.session_id);
+        this.$store.commit('addTimeSlotToCart', this.selectedTimeSlot);
+        this.$router.push('mybooking/confirmation');
+      }
     }
   },
   data() {
@@ -98,7 +86,7 @@ export default {
     })
 
   },
-  beforeCreate() {
+  mounted() {
     this.$store.commit("setPageTitle", "Select Timeslot");
   }
 };
