@@ -132,9 +132,9 @@ export default {
             }
           });
         console.log(res);
-        this.queueNum = res.queue_no;
-        let printContents = document.getElementById("print-content").innerHTML;
-        window.print();
+        // this.queueNum = res.queue_no;
+        // let printContents = document.getElementById("print-content").innerHTML;
+        // window.print();
         self.$router.push('/thankyou');
       } else {
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
@@ -146,9 +146,9 @@ export default {
             }
           });
         console.log(res);
-        this.queueNum = res.queue_no;
-        let printContents = document.getElementById("print-content").innerHTML;
-        window.print();
+        // this.queueNum = res.queue_no;
+        // let printContents = document.getElementById("print-content").innerHTML;
+        // window.print();
         self.$router.push('/thankyou');
       }
     },
