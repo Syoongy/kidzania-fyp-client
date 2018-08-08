@@ -52,10 +52,12 @@ export default {
           noBooked += 1;
         }
       }
-      if (this.limitList.find(i => i.role_id === role.role_id) !== undefined) {
-        let roleLimit = this.limitList.find(i => i.role_id === role.role_id).booking_limit;
-        if (noBooked >= roleLimit) {
-          check = false
+      if (this.limitList !== undefined) {
+        if (this.limitList.find(i => i.role_id === role.role_id) !== undefined) {
+          let roleLimit = this.limitList.find(i => i.role_id === role.role_id).booking_limit;
+          if (noBooked >= roleLimit) {
+            check = false
+          }
         }
       }
       if (check === true) {
@@ -71,10 +73,12 @@ export default {
           noBooked += 1;
         }
       }
-      if (this.limitList.find(i => i.role_id === role_id) !== undefined) {
-        let roleLimit = this.limitList.find(i => i.role_id === role_id).booking_limit;
-        if (noBooked >= roleLimit) {
-          check = false
+      if (this.limitList !== undefined) {
+        if (this.limitList.find(i => i.role_id === role_id) !== undefined) {
+          let roleLimit = this.limitList.find(i => i.role_id === role_id).booking_limit;
+          if (noBooked >= roleLimit) {
+            check = false
+          }
         }
       }
       if (!check) {

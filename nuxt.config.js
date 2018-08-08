@@ -1,6 +1,6 @@
 const environment = {
-	// baseUrl: 'http://25.37.100.106:8000'
-	baseUrl: 'http://localhost:8000'
+	baseUrl: 'http://25.37.100.106:8000'
+	// baseUrl: 'http://localhost:8000'
 }
 module.exports = {
 	modules: [

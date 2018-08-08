@@ -71,7 +71,6 @@ export default {
   async beforeMount() {
     let roleId = this.$store.state.bookingCart.role;
     let res = await this.$axios.$get(`/sessions/getSessionList/${roleId}`)
-    console.log(res)
     this.dataList = res
     console.log(this.dataList)
     this.$store.commit('setSocket', this.$socket)

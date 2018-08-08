@@ -110,7 +110,7 @@ export default {
 
     function resetTimer() {
       clearTimeout(timer);
-      timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
+      //timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
     }
     document.onload = resetTimer;
     document.onmousemove = resetTimer;
@@ -120,15 +120,16 @@ export default {
     document.onkeypress = resetTimer;
 
     let token = this.$store.state.auth;
-    console.log(token[0]);
-    console.log(jwtDecode(token.token).exp)
-    let decoded = jwtDecode(token.token);
+    //console.log(token[0]);
+    //console.log(jwtDecode(token.token).exp)
+    //let decoded = jwtDecode(token.token);
     let current_time = Date.now().valueOf() / 1000;
     if (token === null) {
       self.login();
-    } else if (decoded.exp < current_time && decoded.exp !== undefined) {
-      self.login();
     }
+    // } else if (decoded.exp < current_time && decoded.exp !== undefined) {
+    //   self.login();
+    // }
 
     let stationList;
     let roleList;
@@ -334,4 +335,42 @@ body,
 .staticLogo {
   position: static !important;
 }
+/*
+@media print {
+  #print-content {
+    display: block;
+    visibility: show;
+  }
+  #mySection {
+    display: none;
+    visibility: hidden;
+  }
+  .staticLogo {
+    display: none;
+    visibility: hidden;
+  }
+  .myHero {
+    display: none;
+    visibility: hidden;
+  }
+}
+
+@media screen {
+  #print-content {
+    display: none;
+    visibility: hidden;
+  }
+  #mySection {
+    display: block;
+    visibility: show;
+  }
+  .staticLogo {
+    display: block;
+    visibility: show;
+  }
+  .myHero {
+    display: block;
+    visibility: show;
+  }
+}*/
 </style>
