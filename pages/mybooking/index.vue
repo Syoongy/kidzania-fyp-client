@@ -103,16 +103,26 @@ export default {
     },
     setImagePath(role_id) {
       let self = this
-      this.dataList.forEach(function(station) {
+      // this.dataList.forEach(function(station) {
+      //   if (station.station_id == self.stationID) {
+      //     station.roles.forEach(function(role) {
+      //       if (role.role_id == role_id) {
+      //         self.roleImagePath = role.imagepath;
+      //         self.roleName = role.role_name;
+      //       }
+      //     });
+      //   }
+      // });
+      for (let station of this.dataList) {
         if (station.station_id == self.stationID) {
-          station.roles.forEach(function(role) {
+          for(let role of station.roles) {
             if (role.role_id == role_id) {
               self.roleImagePath = role.imagepath;
               self.roleName = role.role_name;
             }
-          });
+          }
         }
-      });
+      }
     }
   },
   data() {
@@ -153,7 +163,7 @@ export default {
   },
   computed: {
     todayDate() {
-      var today = new Date();
+      let today = new Date();
       return moment(today).format("DD MMM YYYY");
     }
   }
@@ -240,8 +250,8 @@ export default {
 
 @media screen {
   #print-content {
-    display: block;
-    visibility: show;
+    /* display: block; */
+    visibility: hidden;
   }
   #mySection {
     display: block;

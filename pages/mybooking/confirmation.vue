@@ -148,4 +148,25 @@ export default {
 #bookedWrapper {
   height: 100%;
 }
+
+@media print {
+  #print-content {
+    display: block;
+    visibility: show;
+  }
+  #app {
+    display: none;
+    visibility: hidden;
+  }
+  html {
+    background-color: white;
+  }
+}
+
+@media screen {
+  #app {
+    display: block;
+    visibility: show;
+  }
+}
 </style>

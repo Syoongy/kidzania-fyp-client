@@ -19,12 +19,38 @@
       <img src="~/static/kzLogo.svg" class="staticLogo" />
     </figure>
   </footer>
+  <div id="print">
+    <div id="print-content" style="text-align: center;">
+      <div class="space"></div>
+      <div class="space"></div>
+      <p>Welcome to KidZania Singapore</p>
+      <div class="space"></div>
+      <div class="space"></div>
+      <h2>{{ stationNameUppers }}</h2>
+      <div class="space"></div>
+      <h3 class="roleTxt">{{ roleNames }}</h3>
+      <div class="space"></div>
+      <p>Date: {{ todayDate }}</p>
+      <div class="space"></div>
+      <p>Session Time:</p>
+      <h2>{{ sessionStartTimes }} - {{ sessionEndTimes }}</h2>
+      <div class="space"></div>
+      <p>Queue Number:</p>
+      <h1>{{ queueNums }}</h1>
+      <p>Pleez report 5 mins earlier</p>
+      <p>Pleez do not lose the receipt</p>
+      <p>Failure to comply may</p>
+      <p>result in denied entry</p>
+      <p>--------------------</p>
+    </div>
+  </div>
 </div>
 </template>
 
 <script>
 import jwtDecode from 'jwt-decode'
 import Cookie from 'js-cookie'
+import moment from "moment"
 import isEmpty from "~/plugins/dictionary-is-empty.js"
 let scannedArray = [];
 let scannedID = '';
@@ -38,10 +64,55 @@ function WebFormData(ssId, sId, rId, rfid, status) {
 }
 
 export default {
+  computed: {
+    queueNums() {
+      if (!isEmpty(this.$store.state.bookingCart)) {
+        return this.$store.state.bookingCart
+      }
+    },
+    roleNames() {
+      let self = this;
+      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.station !== undefined && this.$store.state.bookingCart.station.roles !== undefined) {
+        stationsList = self.$store.state.stationsList;
+        for (let station of stationsList) {
+          if (station.station_id == self.$store.state.bookingCart.station.stationID) {
+            for (let role of station.roles) {
+              if (role.role_id == role_id) {
+                return role.roleName;
+              }
+            }
+          }
+        }
+      }
+    },
+    stationNameUppers() {
+      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.station !== undefined) {
+        return this.$store.state.bookingCart.station.station_name.toUpperCase();
+      }
+    },
+    sessionStartTimes() {
+      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.timeSlot !== undefined) {
+        let booking = this.$store.state.bookingCart;
+        return booking.timeSlot.session_start;
+      }
+    },
+    sessionEndTimes() {
+      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.timeSlot !== undefined) {
+        let booking = this.$store.state.bookingCart;
+        return booking.timeSlot.session_end;
+      }
+    },
+    todayDate() {
+      let today = new Date();
+      return moment(today).format("DD MMM YYYY");
+    }
+  },
   methods: {
     async confirmBooking() {
       let self = this;
       let bookingDetail = this.$store.state.bookingDetail;
+      let booking = this.$store.state.bookingCart;
+
       console.dir(bookingDetail);
       if (!isEmpty(self.$store.state.bookingDetail)) {
         let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
@@ -60,16 +131,24 @@ export default {
               'Content-Type': 'application/json'
             }
           });
+        console.log(res);
+        this.queueNum = res.queue_no;
+        let printContents = document.getElementById("print-content").innerHTML;
+        window.print();
         self.$router.push('/thankyou');
       } else {
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
-        self.$axios.$post('/bookings/makeBooking',
+        let res = await self.$axios.$post('/bookings/makeBooking',
           webFormData, {
             headers: {
               'Content-Type': 'application/json'
             }
-          })
+          });
+        console.log(res);
+        this.queueNum = res.queue_no;
+        let printContents = document.getElementById("print-content").innerHTML;
+        window.print();
         self.$router.push('/thankyou');
       }
     },
@@ -335,15 +414,31 @@ body,
 .staticLogo {
   position: static !important;
 }
-/*
+
 @media print {
+  .roleTxt {
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 4px;
+  }
+  .space {
+    height: 10px;
+  }
+  * {
+    font-family: "Times New Roman";
+  }
+  h2 {
+    line-height: 0.9;
+    font-size: 1.9rem;
+    font-weight: bold;
+  }
+  h1 {
+    font-size: 3rem;
+    font-weight: bold;
+  }
   #print-content {
     display: block;
     visibility: show;
-  }
-  #mySection {
-    display: none;
-    visibility: hidden;
   }
   .staticLogo {
     display: none;
@@ -352,25 +447,24 @@ body,
   .myHero {
     display: none;
     visibility: hidden;
+  }
+  html {
+    background-color: white;
   }
 }
 
 @media screen {
   #print-content {
-    display: none;
+    /* display: block; */
     visibility: hidden;
-  }
-  #mySection {
-    display: block;
-    visibility: show;
   }
   .staticLogo {
     display: block;
     visibility: show;
   }
   .myHero {
-    display: block;
+    /* display: block; */
     visibility: show;
   }
-}*/
+}
 </style>
