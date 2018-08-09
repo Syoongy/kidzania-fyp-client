@@ -80,15 +80,16 @@ import moment from "moment"
 export default {
   methods: {
     bookingPopUp() {
+      let self = this;
       this.isComponentModalActive = true;
       this.$store.commit("setConfirming", true);
       console.log(this.stationName.toUpperCase())
       this.stationNameUpper = this.stationName.toUpperCase()
       let printContents = document.getElementById("print-content").innerHTML;
-      // let w = window.open();
-      // w.document.write(printContents);
+      window.onafterprint = function() {
+        self.$router.push('/thankyou');
+      }
       window.print();
-      // w.close();
     },
     confirmChange() {
       this.$dialog.confirm({
@@ -115,7 +116,7 @@ export default {
       // });
       for (let station of this.dataList) {
         if (station.station_id == self.stationID) {
-          for(let role of station.roles) {
+          for (let role of station.roles) {
             if (role.role_id == role_id) {
               self.roleImagePath = role.imagepath;
               self.roleName = role.role_name;
@@ -172,6 +173,8 @@ export default {
 
 <style scoped>
 .dialog {
+  display: flex;
+  align-items: center;
   position: relative;
   width: 80%;
   height: 80%;
@@ -195,9 +198,7 @@ export default {
 }
 
 #dialogText {
-  width: 80%;
   margin: 0 auto;
-  padding-top: 8%;
 }
 
 .myLevel {
@@ -211,6 +212,7 @@ export default {
 .myTitle {
   margin-bottom: 20%;
 }
+
 /*
 #print-content {
   display: none;

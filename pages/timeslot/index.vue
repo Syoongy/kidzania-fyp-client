@@ -118,7 +118,7 @@ export default {
   /* transition: width 0.5s; */
 }
 
-.disabledCard .media-content {
+.disabledCard {
   opacity: 0.5;
 }
 

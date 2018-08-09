@@ -8,7 +8,7 @@
       <div class="backBtnTxt" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
         <img src="baseline_arrow_back_white_48dp.png" />
       </div>
-      <div class="exitBtnTxt" @click="$router.push('/');" v-if="$store.state.pageName != 'Thank You'">
+      <div class="exitBtnTxt" @click="exitDialog" v-if="$store.state.pageName != 'Thank You'">
         <img src="exit-run.png" />
       </div>
     </div>
@@ -19,7 +19,7 @@
       <img src="~/static/kzLogo.svg" class="staticLogo" />
     </figure>
   </footer>
-  <div id="print">
+  <div id="print" v-if="$router.currentRoute.path === '/mybooking/confirmation'">
     <div id="print-content" style="text-align: center;">
       <div class="space"></div>
       <div class="space"></div>
@@ -57,16 +57,17 @@ let scannedID = '';
 
 function WebFormData(ssId, sId, rId, rfid, status) {
   this.session_id = ssId,
-  this.station_id = sId,
-  this.role_id = rId,
-  this.rfid = rfid,
-  this.status = status
+    this.station_id = sId,
+    this.role_id = rId,
+    this.rfid = rfid,
+    this.status = status
 }
 
 export default {
   data() {
     return {
-      booking: null
+      booking: null,
+      bookingBeingMade: false
     }
   },
   computed: {
@@ -111,49 +112,127 @@ export default {
     }
   },
   methods: {
+    exitDialog() {
+      let self = this;
+      self.bookingBeingMade = true;
+      this.$dialog.confirm({
+        title: `Exit`,
+        message: 'Do you want to exit?',
+        confirmText: 'Exit',
+        size: 'is-large',
+        type: 'is-danger',
+        onConfirm: () => {
+          self.$router.push('/');
+          self.bookingBeingMade = false;
+        },
+        onCancel: () => self.bookingBeingMade = false
+      });
+    },
     async confirmBooking() {
       let self = this;
       let bookingDetail = this.$store.state.bookingDetail;
       this.booking = this.$store.state.bookingCart;
+      this.bookingBeingMade = true;
+      console.log('Booking being made');
 
       console.dir(bookingDetail);
-      if (!isEmpty(self.$store.state.bookingDetail)) {
+      if (!isEmpty(bookingDetail)) { //Reprint
         let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
         let res = await self.$axios.$put('/bookings/cancelBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+          .catch(e => {
+            console.log(e)
+            this.$dialog.alert({
+              title: `Booking Failed`,
+              message: 'Oh No! Your booking has failed. Please try again',
+              confirmText: 'Exit',
+              size: 'is-large',
+              type: 'is-danger',
+              onConfirm: () => self.$router.push('/')
+            });
+            self.booking = null;
+            self.bookingBeingMade = false;
+            self.$store.commit('setQNum', 0);
+            return;
           });
         console.log(res);
         webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         res = await self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+          .catch(e => {
+            console.log(e)
+            this.$dialog.alert({
+              title: `Booking Failed`,
+              message: 'Oh No! Your booking has failed. Please try again',
+              confirmText: 'Exit',
+              size: 'is-large',
+              type: 'is-danger',
+              onConfirm: () => self.$router.push('/')
+            });
+            self.booking = null;
+            self.bookingBeingMade = false;
+            self.$store.commit('setQNum', 0);
+            return;
           });
-        console.log(res);
-        self.$router.push('/thankyou');
-      } else {
+        this.$store.dispatch('addQNumAsync', {
+            qNum: res.queue_no
+          })
+          .then(() => {
+            let printContents = document.getElementById("print-content").innerHTML;
+            window.onafterprint = function() {
+              self.booking = null;
+              self.bookingBeingMade = false;
+              self.$store.commit('setQNum', 0);
+              self.$router.push('/thankyou');
+            }
+            window.print();
+          })
+      } else { //New booking
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         let res = await self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
+          .catch(e => {
+            console.log(e)
+            this.$dialog.alert({
+              title: `Booking Failed`,
+              message: 'Oh No! Your booking has failed. Please try again',
+              confirmText: 'Exit',
+              size: 'is-large',
+              type: 'is-danger',
+              onConfirm: () => self.$router.push('/')
+            });
+            self.booking = null;
+            self.bookingBeingMade = false;
+            self.$store.commit('setQNum', 0);
+            return;
           });
-        this.$store.dispatch('addQNumAsync', {qNum: res.queue_no})
-        .then(() => {
-          let printContents = document.getElementById("print-content").innerHTML;
-          window.onafterprint = function() {
-            self.$store.commit('setQNum', 0)
-            self.$router.push('/thankyou')
-          }
-          window.print()
-        })
+        this.$store.dispatch('addQNumAsync', {
+            qNum: res.queue_no
+          })
+          .then(() => {
+            let printContents = document.getElementById("print-content").innerHTML;
+            window.onafterprint = function() {
+              self.booking = null;
+              self.bookingBeingMade = false;
+              self.$store.commit('setQNum', 0);
+              self.$router.push('/thankyou');
+            }
+            window.print();
+          })
       }
     },
     async login() {
@@ -243,7 +322,7 @@ export default {
 
     //Scanning Function
     window.onkeypress = async function(e) {
-      if (e.key == 'Enter') {
+      if (e.key === 'Enter' && !self.bookingBeingMade) {
         scannedID = scannedArray.join('');
         scannedArray = [];
         console.dir(scannedID);
@@ -302,6 +381,7 @@ export default {
         } else if (prevScannedID === scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
           self.confirmBooking();
         } else if (prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
+          self.$store.commit('setConfirming', false);
           self.$dialog.alert({
             title: 'Error',
             message: 'You have scanned a different bracelet',
@@ -312,7 +392,7 @@ export default {
           })
         }
         scannedID = '';
-      } else {
+      } else if (!self.bookingBeingMade) {
         scannedArray.push(e.key);
       }
     };

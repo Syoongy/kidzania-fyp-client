@@ -12,8 +12,10 @@
 
 <script scoped>
 export default {
-  methods: {
-
+  data() {
+    return {
+      timer: null
+    }
   },
   mounted() {
     let self = this;
@@ -23,7 +25,10 @@ export default {
     function returnToHome() {
       self.$router.push('/');
     }
-    setTimeout(returnToHome, 5000)
+    this.timer = setTimeout(returnToHome, 5000);
+  },
+  onDestroy() {
+    clearTimeout(this.timer);
   }
 }
 </script>

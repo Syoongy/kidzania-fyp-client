@@ -68,6 +68,7 @@ export default {
     isDisable(role_id) {
       let check = true;
       let noBooked = 0;
+      console.log(this.allBookings)
       for (let b of this.allBookings) {
         if (b.role_id === role_id && b.booking_status === 'Admitted') {
           noBooked += 1;
