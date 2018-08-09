@@ -107,7 +107,7 @@ export default {
   mounted() {
     this.$store.commit('setPageTitle', 'My Booking');
   },
-  onDestroy() {
+  beforeDestroy() {
     this.isComponentModalActive = false;
   }
 }

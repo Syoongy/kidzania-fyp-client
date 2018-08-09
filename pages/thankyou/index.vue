@@ -21,14 +21,26 @@ export default {
     let self = this;
     this.$store.commit('setScannedID', '');
     this.$store.commit('setPageTitle', '');
+    for (let b of this.$store.state.allBookingDetails) {
+      self.$store.commit('popBookingDetails');
+    }
+    this.$store.commit('setScannedID', '');
+    this.$store.commit('setPageTitle', '');
+    this.$store.commit('setBookingCart', {});
+    this.$store.commit('setBookingDetail', {});
+    this.$store.commit('setConfirming', false);
 
     function returnToHome() {
       self.$router.push('/');
     }
     this.timer = setTimeout(returnToHome, 5000);
   },
-  onDestroy() {
-    clearTimeout(this.timer);
+  beforeDestroy() {
+    if (this.timer) {
+      console.log('clearing');
+      clearTimeout(this.timer);
+      this.timer = null;
+    }
   }
 }
 </script>
