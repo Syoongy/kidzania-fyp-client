@@ -12,20 +12,23 @@
 
 <script scoped>
 export default {
-  methods: {
-
-  },
-  beforeCreate() {
-    this.$store.commit("setPageTitle", "Thank You");
+  data() {
+    return {
+      timer: null
+    }
   },
   mounted() {
     let self = this;
+    this.$store.commit('setScannedID', '');
+    this.$store.commit('setPageTitle', '');
 
     function returnToHome() {
       self.$router.push('/');
-      self.$store.commit("setPageTitle", "");
     }
-    setTimeout(returnToHome, 5000)
+    this.timer = setTimeout(returnToHome, 5000);
+  },
+  onDestroy() {
+    clearTimeout(this.timer);
   }
 }
 </script>

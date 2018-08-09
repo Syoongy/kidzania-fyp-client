@@ -1,5 +1,6 @@
 const environment = {
-	baseUrl: 'http://ec2-52-33-181-199.us-west-2.compute.amazonaws.com:8000'
+	// baseUrl: 'http://25.37.100.106:8000'
+	baseUrl: 'http://localhost:8000'
 }
 module.exports = {
 	modules: [
@@ -67,12 +68,12 @@ module.exports = {
 		}) {
 			if (isDev && isClient) {
 				config.resolve.alias['vue'] = 'vue/dist/vue.common'
-				config.module.rules.push({
-					enforce: 'pre',
-					test: /\.(js|vue)$/,
-					loader: 'eslint-loader',
-					exclude: /(node_modules)/
-				})
+				// config.module.rules.push({
+				// 	enforce: 'pre',
+				// 	test: /\.(js|vue)$/,
+				// 	loader: 'eslint-loader',
+				// 	exclude: /(node_modules)/
+				// })
 			}
 		}
 	}

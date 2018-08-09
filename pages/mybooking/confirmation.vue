@@ -38,43 +38,30 @@
       </div>
     </div>
   </section>
-  <b-modal :active.sync="isComponentModalActive" @click="onClose()" has-modal-card>
-    <modal-form></modal-form>
+  <b-modal :active.sync="isComponentModalActive" :canCancel="false">
+    <b-message title="Confirm Booking" type="is-success" size="is-large" :closable="false">
+      Please scan your bracelet to confirm the booking!
+    </b-message>
   </b-modal>
 </div>
 </template>
 
 <script>
 import isEmpty from "~/plugins/dictionary-is-empty.js"
-const ModalForm = {
-  template: `
-  <div class="modal-card" style="width: auto">
-      <header class="modal-card-head has-background-success has-text-white">
-          <p class="modal-card-title is-size-4">Confirm Booking</p>
-      </header>
-      <section class="modal-card-body is-size-4">
-        <b>Please scan your bracelet to confirm the booking!</b>
-      </section>
-      <footer class="modal-card-foot has-background-success">
-      </footer>
-  </div>
-  `
-}
 export default {
-  components: {
-    ModalForm
-  },
   methods: {
     confirmChange() {
-      this.$dialog.confirm({
-        title: 'Oh no!',
-        message: 'You can only have one booking at a time. Press OK to change your current booking',
-        confirmText: 'OK',
-        type: 'is-danger',
-        hasIcon: true,
-        size: 'is-large',
-        onConfirm: () => this.$router.push('/station')
-      })
+      if (!this.isComponentModalActive) {
+        this.$dialog.confirm({
+          title: 'Oh no!',
+          message: 'You can only have one booking at a time. Press OK to change your current booking',
+          confirmText: 'OK',
+          type: 'is-danger',
+          hasIcon: true,
+          size: 'is-large',
+          onConfirm: () => this.$router.push('/station')
+        })
+      }
     },
     bookingPopUp() {
       this.isComponentModalActive = true
@@ -117,7 +104,7 @@ export default {
     this.sessionEndTime = booking.timeSlot.session_end;
     this.setImagePath(this.role_id);
   },
-  beforeCreate() {
+  mounted() {
     this.$store.commit('setPageTitle', 'My Booking');
   },
   onDestroy() {
@@ -128,6 +115,8 @@ export default {
 
 <style scoped>
 .dialog {
+  display: flex;
+  align-items: center;
   position: relative;
   width: 80%;
   height: 80%;
@@ -151,9 +140,7 @@ export default {
 }
 
 #dialogText {
-  width: 80%;
   margin: 0 auto;
-  padding-top: 15%;
 }
 
 .myLevel {
@@ -162,5 +149,26 @@ export default {
 
 #bookedWrapper {
   height: 100%;
+}
+
+@media print {
+  #print-content {
+    display: block;
+    visibility: show;
+  }
+  #app {
+    display: none;
+    visibility: hidden;
+  }
+  html {
+    background-color: white;
+  }
+}
+
+@media screen {
+  #app {
+    display: block;
+    visibility: show;
+  }
 }
 </style>
