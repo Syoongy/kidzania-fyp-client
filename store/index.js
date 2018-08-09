@@ -10,6 +10,7 @@ const createStore = () => {
 			pageName: '',
 			stationsList: [],
 			role: '',
+			currQNum: 0,
 			bookingCart: {},
 			bookingDetail: {},
 			allBookingDetails: [],
@@ -53,6 +54,9 @@ const createStore = () => {
 			setBookingCart: (state, payload) => {
 				state.bookingCart = payload;
 			},
+			setQNum: (state, payload) => {
+				state.currQNum = payload;
+			},
 			setConfirming: (state, payload) => {
 				state.confirming = payload;
 			},
@@ -71,6 +75,14 @@ const createStore = () => {
 					}
 				}
 				commit('updateAuthState', accessToken);
+			},
+			addQNumAsync({ commit }, qNum) {
+				return new Promise((resolve, reject) => {
+					setTimeout(() => {
+						commit('setQNum', qNum.qNum)
+						resolve()
+					}, 5000)
+				})
 			}
 		}
 	})
