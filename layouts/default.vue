@@ -57,28 +57,33 @@ let scannedID = '';
 
 function WebFormData(ssId, sId, rId, rfid, status) {
   this.session_id = ssId,
-    this.station_id = sId,
-    this.role_id = rId,
-    this.rfid = rfid,
-    this.status = status
+  this.station_id = sId,
+  this.role_id = rId,
+  this.rfid = rfid,
+  this.status = status
 }
 
 export default {
+  data() {
+    return {
+      booking: null
+    }
+  },
   computed: {
     queueNums() {
-      if (!isEmpty(this.$store.state.bookingCart)) {
-        return this.$store.state.bookingCart
+      if (this.booking) {
+        return this.$store.state.currQNum
       }
     },
     roleNames() {
       let self = this;
-      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.station !== undefined && this.$store.state.bookingCart.station.roles !== undefined) {
-        stationsList = self.$store.state.stationsList;
+      if (this.booking && this.booking.station) {
+        let stationsList = self.$store.state.stationsList;
         for (let station of stationsList) {
-          if (station.station_id == self.$store.state.bookingCart.station.stationID) {
+          if (station.station_id == this.booking.station.station_id) {
             for (let role of station.roles) {
-              if (role.role_id == role_id) {
-                return role.roleName;
+              if (role.role_id == this.booking.role) {
+                return role.role_name;
               }
             }
           }
@@ -86,20 +91,18 @@ export default {
       }
     },
     stationNameUppers() {
-      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.station !== undefined) {
-        return this.$store.state.bookingCart.station.station_name.toUpperCase();
+      if (this.booking && this.booking.station !== undefined) {
+        return this.booking.station.station_name.toUpperCase();
       }
     },
     sessionStartTimes() {
-      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.timeSlot !== undefined) {
-        let booking = this.$store.state.bookingCart;
-        return booking.timeSlot.session_start;
+      if (this.booking && this.booking.timeSlot) {
+        return this.booking.timeSlot.session_start;
       }
     },
     sessionEndTimes() {
-      if (!isEmpty(this.$store.state.bookingCart) && this.$store.state.bookingCart.timeSlot !== undefined) {
-        let booking = this.$store.state.bookingCart;
-        return booking.timeSlot.session_end;
+      if (this.booking && this.booking.timeSlot) {
+        return this.booking.timeSlot.session_end;
       }
     },
     todayDate() {
@@ -111,7 +114,7 @@ export default {
     async confirmBooking() {
       let self = this;
       let bookingDetail = this.$store.state.bookingDetail;
-      let booking = this.$store.state.bookingCart;
+      this.booking = this.$store.state.bookingCart;
 
       console.dir(bookingDetail);
       if (!isEmpty(self.$store.state.bookingDetail)) {
@@ -132,9 +135,6 @@ export default {
             }
           });
         console.log(res);
-        // this.queueNum = res.queue_no;
-        // let printContents = document.getElementById("print-content").innerHTML;
-        // window.print();
         self.$router.push('/thankyou');
       } else {
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
@@ -145,11 +145,15 @@ export default {
               'Content-Type': 'application/json'
             }
           });
-        console.log(res);
-        // this.queueNum = res.queue_no;
-        // let printContents = document.getElementById("print-content").innerHTML;
-        // window.print();
-        self.$router.push('/thankyou');
+        this.$store.dispatch('addQNumAsync', {qNum: res.queue_no})
+        .then(() => {
+          let printContents = document.getElementById("print-content").innerHTML;
+          window.onafterprint = function() {
+            self.$store.commit('setQNum', 0)
+            self.$router.push('/thankyou')
+          }
+          window.print()
+        })
       }
     },
     async login() {
