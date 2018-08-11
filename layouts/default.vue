@@ -162,13 +162,13 @@ export default {
         console.log(res);
         webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
-        res = await self.$axios.$post('/bookings/makeBooking',
+        self.$axios.$post('/bookings/makeBooking',
           webFormData, {
             headers: {
               'Content-Type': 'application/json'
             }
           })
-          .then(() => {
+          .then(res => {
             this.$store.dispatch('addQNumAsync', {
               qNum: res.queue_no
             })
@@ -207,7 +207,7 @@ export default {
               'Content-Type': 'application/json'
             }
           })
-          .then(() => {
+          .then(res => {
             this.$store.dispatch('addQNumAsync', {
               qNum: res.queue_no
             })
