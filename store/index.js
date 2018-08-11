@@ -78,10 +78,16 @@ const createStore = () => {
 			},
 			addQNumAsync({ commit }, qNum) {
 				return new Promise((resolve, reject) => {
+					commit('setQNum', qNum.qNum)
+					resolve()
+				})
+			},
+			updateAuthAsync({ commit }, auth) {
+				return new Promise((resolve, reject) => {
 					setTimeout(() => {
-						commit('setQNum', qNum.qNum)
+						commit('updateAuthState', auth.auth)
 						resolve()
-					}, 5000)
+					}, 2000)
 				})
 			}
 		}

@@ -139,11 +139,11 @@ export default {
       if (!isEmpty(bookingDetail)) { //Reprint
         let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
         let res = await self.$axios.$put('/bookings/cancelBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            })
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
           .catch(e => {
             console.log(e)
             this.$dialog.alert({
@@ -163,11 +163,26 @@ export default {
         webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         res = await self.$axios.$post('/bookings/makeBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(() => {
+            this.$store.dispatch('addQNumAsync', {
+              qNum: res.queue_no
             })
+          })
+          .then(() => {
+            let printContents = document.getElementById("print-content").innerHTML;
+            window.onafterprint = function() {
+              self.booking = null;
+              self.bookingBeingMade = false;
+              self.$store.commit('setQNum', 0);
+              self.$router.push('/thankyou');
+            }
+            window.print();
+          })
           .catch(e => {
             console.log(e)
             this.$dialog.alert({
@@ -183,28 +198,30 @@ export default {
             self.$store.commit('setQNum', 0);
             return;
           });
-        this.$store.dispatch('addQNumAsync', {
-            qNum: res.queue_no
-          })
-          .then(() => {
-            let printContents = document.getElementById("print-content").innerHTML;
-            window.onafterprint = function() {
-              self.booking = null;
-              self.bookingBeingMade = false;
-              self.$store.commit('setQNum', 0);
-              self.$router.push('/thankyou');
-            }
-            window.print();
-          })
       } else { //New booking
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         let res = await self.$axios.$post('/bookings/makeBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
+          webFormData, {
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          })
+          .then(() => {
+            this.$store.dispatch('addQNumAsync', {
+              qNum: res.queue_no
             })
+          })
+          .then(() => {
+            let printContents = document.getElementById("print-content").innerHTML;
+            window.onafterprint = function() {
+              self.booking = null;
+              self.bookingBeingMade = false;
+              self.$store.commit('setQNum', 0);
+              self.$router.push('/thankyou');
+            }
+            window.print();
+          })
           .catch(e => {
             console.log(e)
             this.$dialog.alert({
@@ -220,19 +237,7 @@ export default {
             self.$store.commit('setQNum', 0);
             return;
           });
-        this.$store.dispatch('addQNumAsync', {
-            qNum: res.queue_no
-          })
-          .then(() => {
-            let printContents = document.getElementById("print-content").innerHTML;
-            window.onafterprint = function() {
-              self.booking = null;
-              self.bookingBeingMade = false;
-              self.$store.commit('setQNum', 0);
-              self.$router.push('/thankyou');
-            }
-            window.print();
-          })
+        
       }
     },
     async login() {
@@ -287,7 +292,7 @@ export default {
     //let decoded = jwtDecode(token.token);
     let current_time = Date.now().valueOf() / 1000;
     if (token === null) {
-      self.login();
+      await self.login();
     }
     // } else if (decoded.exp < current_time && decoded.exp !== undefined) {
     //   self.login();
