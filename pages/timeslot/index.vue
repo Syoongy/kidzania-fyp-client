@@ -1,7 +1,7 @@
 <template>
 <div id="app">
   <section class="myContainer container columns is-multiline is-centered">
-    <b-tabs type="is-toggle" size="is-large" class="container" expanded>
+    <b-tabs type="is-toggle" size="is-large" class="container" expanded v-if="dataList.length > 0">
       <b-tab-item :label="'Page ' + i" v-for="i in Math.ceil(dataList.length / 8)" :key="i" class="columns is-multiline is-centered myTabItem">
         <div v-for="timeslot in dataList.slice((i-1)*8, i*8)" :key="timeslot.session_id" class="column is-one-quarter" :class="{selectedCard : selectedIndex == timeslot.session_id}">
           <div class="card myCard" @click="selectTimeSlot(timeslot, timeslot.session_id)" :class="{disabledCard: isDisabled(timeslot.capacity - timeslot.noBooked, timeslot.session_id)}">
@@ -26,14 +26,20 @@
         </div>
       </b-tab-item>
     </b-tabs>
-    <div class="column is-one-third myBtn">
+    <div class="column is-one-third myBtn" v-if="dataList.length > 0">
       <a class="button is-danger is-rounded is-large is-fullwidth" @click="makeBooking()" :disabled="disabled">Book</a>
+    </div>
+
+    <div class="column is-one-third level" v-else>
+      <p class="level-item has-text-weight-bold is-size-2 has-text-grey">There are no slots left.</p>
     </div>
   </section>
 </div>
 </template>
 
 <script>
+import isEmpty from "~/plugins/dictionary-is-empty.js"
+
 export default {
   methods: {
     isDisabled(noBooked, index) {
@@ -52,10 +58,27 @@ export default {
       }
     },
     makeBooking() {
-      if (this.disabled === false) {
+      let check = true;
+      let prevBooking = this.$store.state.bookingDetail;
+      console.log(prevBooking.session_id);
+      console.log(this.selectedTimeSlot.session_id);
+      if (!isEmpty(prevBooking)) {
+        if (this.selectedTimeSlot.session_id === prevBooking.session_id) {
+          check = false
+        }
+      }
+      if (this.disabled === false && check) {
         this.socket.emit('makeBooking', this.selectedTimeSlot.session_id);
         this.$store.commit('addTimeSlotToCart', this.selectedTimeSlot);
         this.$router.push('mybooking/confirmation');
+      } else {
+        this.$dialog.alert({
+          title: 'Error',
+          message: 'This is your current time slot. <br />Please select a different one.',
+          confirmText: 'Ok',
+          size: 'is-large',
+          type: 'is-danger'
+        })
       }
     }
   },
@@ -72,7 +95,7 @@ export default {
     let roleId = this.$store.state.bookingCart.role;
     let res = await this.$axios.$get(`/sessions/getSessionList/${roleId}`)
     this.dataList = res
-    console.log(this.dataList)
+    console.log(this.dataList.length)
     this.$store.commit('setSocket', this.$socket)
     this.socket = this.$store.state.io
     this.socket.on('newSlotBooked', (sessionId) => {

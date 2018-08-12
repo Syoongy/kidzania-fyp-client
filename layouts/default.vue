@@ -139,11 +139,11 @@ export default {
       if (!isEmpty(bookingDetail)) { //Reprint
         let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
         let res = await self.$axios.$put('/bookings/cancelBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
           .catch(e => {
             console.log(e)
             this.$dialog.alert({
@@ -163,11 +163,11 @@ export default {
         webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
           .then(res => {
             this.$store.dispatch('addQNumAsync', {
               qNum: res.queue_no
@@ -202,11 +202,11 @@ export default {
         let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
         console.dir(webFormData);
         let res = await self.$axios.$post('/bookings/makeBooking',
-          webFormData, {
-            headers: {
-              'Content-Type': 'application/json'
-            }
-          })
+            webFormData, {
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            })
           .then(res => {
             this.$store.dispatch('addQNumAsync', {
               qNum: res.queue_no
@@ -237,7 +237,7 @@ export default {
             self.$store.commit('setQNum', 0);
             return;
           });
-        
+
       }
     },
     async login() {
@@ -276,8 +276,11 @@ export default {
     }
 
     function resetTimer() {
-      clearTimeout(timer);
-      //timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
+      if (self.$store.state.scannedID !== '') {
+        console.log('reset Timer is being called');
+        clearTimeout(timer);
+        timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
+      }
     }
     document.onload = resetTimer;
     document.onmousemove = resetTimer;
@@ -329,14 +332,13 @@ export default {
     window.onkeypress = async function(e) {
       if (e.key === 'Enter' && !self.bookingBeingMade) {
         scannedID = scannedArray.join('');
+        scannedID = scannedID.toUpperCase();
         scannedArray = [];
         console.dir(scannedID);
         let prevScannedID = self.$store.state.scannedID;
         console.log(prevScannedID);
-        console.log(self.$store.state.confirming);
-        if (self.$router.currentRoute.path !== '/mybooking/confirmation' && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !==
-            '/mybooking') || (prevScannedID === scannedID && self.$router.currentRoute
-            .path === '/'))))) {
+        if (!self.$store.state.confirming && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !== '/mybooking') || (prevScannedID ===
+            scannedID && self.$router.currentRoute.path === '/'))))) {
           for (let b of self.$store.state.allBookingDetails) {
             self.$store.commit('popBookingDetails');
           }
@@ -358,7 +360,8 @@ export default {
           }
           self.$store.commit('setBookingDetail', booking);
           console.log(self.$store.state.bookingDetail);
-          self.$router.push(`mybooking`);
+          resetTimer();
+          self.$router.push(`/mybooking`);
         } else if (prevScannedID !== '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
           console.log('Reload Page')
           for (let b of self.$store.state.allBookingDetails) {
