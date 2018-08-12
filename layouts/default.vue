@@ -37,8 +37,8 @@
       <div class="space"></div>
       <p>Queue Number:</p>
       <h1>{{ queueNums }}</h1>
-      <p>Pleez report 5 mins earlier</p>
-      <p>Pleez do not lose the receipt</p>
+      <p>PleeZ report 5 mins earlier</p>
+      <p>PleeZ do not lose the receipt</p>
       <p>Failure to comply may</p>
       <p>result in denied entry</p>
       <p>--------------------</p>
@@ -117,7 +117,7 @@ export default {
       self.bookingBeingMade = true;
       this.$dialog.confirm({
         title: `Exit`,
-        message: 'Do you want to exit?',
+        message: 'Would you like to <b>exit</b>?',
         confirmText: 'Exit',
         size: 'is-large',
         type: 'is-danger',
@@ -148,7 +148,7 @@ export default {
             console.log(e)
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh No! Your booking has failed. Please try again',
+              message: 'Oh No! Your booking has <b>failed</b>. PleeZ try again.',
               confirmText: 'Exit',
               size: 'is-large',
               type: 'is-danger',

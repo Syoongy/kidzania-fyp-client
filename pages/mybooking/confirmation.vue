@@ -12,15 +12,9 @@
           <div class="column is-6">
             <div class="dialog">
               <div class="has-text-left-desktop" id="dialogText">
-                <p class="title">
-                  Come join me as a <b class="has-text-danger">{{ roleName }}</b>
-                </p>
-                <p class="title">
-                  at the <b class="has-text-danger">{{ stationName }}</b>
-                </p>
-                <p class="title">
-                  from <b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> !
-                </p>
+                <p class="title">Kai! Would you like to join us as a <b class="has-text-danger">{{ roleName }}</b> at the <b class="has-text-danger">{{ sessionStartTime }} - {{ sessionEndTime }}</b> session?</p>
+                <!-- <p class="title"><b class="has-text-danger">{{ roleName }}</b> at the</p>
+                <p class="title"><b class="has-text-danger">{{ sessionStartTime }} to {{ sessionEndTime }}</b> session?</p> -->
               </div>
             </div>
           </div>
@@ -29,10 +23,10 @@
       <div class="column">
         <div class="columns is-centered has-text-centered">
           <div class="column is-5">
-            <a class="button is-success is-rounded is-large is-fullwidth" @click="bookingPopUp">Print receipt to confirm</a>
+            <a class="button is-success is-rounded is-large is-fullwidth" @click="bookingPopUp"><b>Confirm Booking</b></a>
           </div>
           <div class="column is-5">
-            <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange">Change Booking</a>
+            <a class="button is-danger is-rounded is-large is-fullwidth" @click="confirmChange"><b>Change Booking</b></a>
           </div>
         </div>
       </div>
@@ -40,7 +34,7 @@
   </section>
   <b-modal :active.sync="isComponentModalActive" :canCancel="false">
     <b-message title="Confirm Booking" type="is-success" size="is-large" :closable="false">
-      Please scan your bracelet to confirm the booking!
+      PleeZ scan your bracelet to confirm your booking.
     </b-message>
   </b-modal>
 </div>
@@ -54,7 +48,7 @@ export default {
       if (!this.isComponentModalActive) {
         this.$dialog.confirm({
           title: 'Oh no!',
-          message: 'You can only have one booking at a time. Press OK to change your current booking',
+          message: 'You can only have <b>one booking</b> at a time. Press OK to <b>change</b> your current booking',
           confirmText: 'OK',
           type: 'is-danger',
           hasIcon: true,
@@ -140,7 +134,7 @@ export default {
 }
 
 #dialogText {
-  margin: 0 auto;
+  margin: 0 10%;
 }
 
 .myLevel {

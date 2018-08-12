@@ -30,8 +30,8 @@
       <a class="button is-danger is-rounded is-large is-fullwidth" @click="makeBooking()" :disabled="disabled">Book</a>
     </div>
 
-    <div class="column is-one-third level" v-else>
-      <p class="level-item has-text-weight-bold is-size-2 has-text-grey">There are no slots left.</p>
+    <div class="column is-half level" v-else>
+      <p class="level-item has-text-weight-bold is-size-2 has-text-grey">There are <b>no slots</b> left for the day.</p>
     </div>
   </section>
 </div>
@@ -74,7 +74,7 @@ export default {
       } else {
         this.$dialog.alert({
           title: 'Error',
-          message: 'This is your current time slot. <br />Please select a different one.',
+          message: 'This is your current time slot.<br />PleeZ select a <b>different</b> one.',
           confirmText: 'Ok',
           size: 'is-large',
           type: 'is-danger'
