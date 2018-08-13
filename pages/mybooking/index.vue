@@ -35,7 +35,7 @@
     <div v-else class="level myLevel">
       <div class="level-item has-text-centered">
         <div>
-          <p class="title myTitle">You currently have no Booking</p>
+          <p class="title myTitle">You currently have no booking</p>
           <div class="columns is-centered has-text-centered">
             <a class="button is-danger is-rounded is-large is-fullwidth" @click="$router.push(`station`);"><b>Start Booking</b></a>
           </div>

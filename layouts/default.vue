@@ -137,7 +137,7 @@ export default {
 
       console.dir(bookingDetail);
       if (!isEmpty(bookingDetail)) { //Reprint
-        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID, "Cancelled");
+        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID.toUpperCase(), "Cancelled");
         let res = await self.$axios.$put('/bookings/cancelBooking',
             webFormData, {
               headers: {
@@ -160,7 +160,7 @@ export default {
             return;
           });
         console.log(res);
-        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID.toUpperCase(), "Confirmed");
         console.dir(webFormData);
         self.$axios.$post('/bookings/makeBooking',
             webFormData, {
@@ -187,7 +187,7 @@ export default {
             console.log(e)
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh No! Your booking has failed. Please try again',
+              message: 'Oh no! Your booking has failed. Please try again',
               confirmText: 'Exit',
               size: 'is-large',
               type: 'is-danger',
@@ -226,7 +226,7 @@ export default {
             console.log(e)
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh No! Your booking has failed. Please try again',
+              message: 'Oh no! Your booking has failed. Please try again',
               confirmText: 'Exit',
               size: 'is-large',
               type: 'is-danger',
@@ -253,7 +253,7 @@ export default {
           this.$axios.setToken(auth.token, 'Bearer');
         }
       } catch (err) {
-        let msg = 'Internal Server Error. Please Contact Administrator.';
+        let msg = 'Internal server error. Please contact Administrator.';
         if (err.response.data) {
           msg = err.response.data.message
         }
@@ -335,7 +335,7 @@ export default {
         scannedID = scannedID.toUpperCase();
         scannedArray = [];
         console.dir(scannedID);
-        let prevScannedID = self.$store.state.scannedID;
+        let prevScannedID = self.$store.state.scannedID.toUpperCase();
         console.log(prevScannedID);
         if (!self.$store.state.confirming && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !== '/mybooking') || (prevScannedID ===
             scannedID && self.$router.currentRoute.path === '/'))))) {

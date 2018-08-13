@@ -1,6 +1,6 @@
 const environment = {
-	// baseUrl: 'http://25.37.100.106:8000'
-	baseUrl: 'http://localhost:8000'
+	baseUrl: 'http://172.22.76.104:8000'
+	// baseUrl: 'http://localhost:8000'
 }
 module.exports = {
 	modules: [
@@ -29,7 +29,7 @@ module.exports = {
 	 ** Headers of the page
 	 */
 	head: {
-		title: 'fyp-client-side',
+		title: 'Q-zee Booking',
 		meta: [{
 				charset: 'utf-8'
 			},

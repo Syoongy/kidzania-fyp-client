@@ -31,7 +31,7 @@
     </div>
 
     <div class="column is-half level" v-else>
-      <p class="level-item has-text-weight-bold is-size-2 has-text-grey">There are <b>no slots</b> left for the day.</p>
+      <p class="level-item has-text-weight-bold is-size-2 has-text-grey">There are <b>&nbsp;no slots&nbsp;</b> left for the day.</p>
     </div>
   </section>
 </div>
