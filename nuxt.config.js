@@ -1,6 +1,6 @@
 const environment = {
-	baseUrl: 'http://172.22.76.104:8000'
-	// baseUrl: 'http://localhost:8000'
+	// baseUrl: 'http://172.22.76.104:8000'
+	baseUrl: 'http://localhost:8000'
 }
 module.exports = {
 	modules: [
@@ -18,10 +18,6 @@ module.exports = {
 		baseURL: environment.baseUrl,
 		proxy: false
 	},
-	proxy: {
-		'/api/': 'http://localhost:3000/'
-	},
-	serverMiddleware: ['./api/index'],
 	env: {
 		API_URL: environment.baseUrl
 	},
