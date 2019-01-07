@@ -20,7 +20,7 @@ export default {
 
 <style>
 #background {
-  background-image: url('~/static/img-default.svg');
+  background-image: url('~static/img-default.svg');
   width: 100%;
   height: 100vh;
   background-position: center;
