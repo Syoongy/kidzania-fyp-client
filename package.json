@@ -6,7 +6,7 @@
   "private": true,
   "config": {
     "nuxt": {
-      "host": "0.0.0.0",
+      "host": "25.30.64.144",
       "port": "1234"
     }
   },
