@@ -1,88 +1,92 @@
 <template>
-<div id="myLayout">
-  <section class="hero myHero" v-if="$store.state.scannedID != ''">
-    <div class="hero-body" v-if="$store.state.pageName != ''">
-      <h1 id="title">
-          {{$store.state.pageName}}
-      </h1>
-      <div class="backBtnTxt" @click="$router.go(-1);" v-if="$store.state.pageName != 'My Booking' && $store.state.pageName != 'Thank You'">
-        <img src="baseline_arrow_back_white_48dp.png" />
+  <div id="myLayout">
+    <section class="hero myHero" v-if="scannedID != ''">
+      <div class="hero-body" v-if="pageName != ''">
+        <h1 id="title">{{pageName}}</h1>
+        <div
+          class="backBtnTxt"
+          @click="$router.go(-1);"
+          v-if="pageName != 'My Booking' && pageName != 'Thank You'"
+        >
+          <img src="baseline_arrow_back_white_48dp.png">
+        </div>
+        <div class="exitBtnTxt" @click="exitDialog" v-if="pageName != 'Thank You'">
+          <img src="exit-run.png">
+        </div>
       </div>
-      <div class="exitBtnTxt" @click="exitDialog" v-if="$store.state.pageName != 'Thank You'">
-        <img src="exit-run.png" />
+    </section>
+    <nuxt/>
+    <footer id="myFooter">
+      <figure class="image is-3by1 logo">
+        <img src="~/static/kzLogo.svg" class="staticLogo">
+      </figure>
+    </footer>
+    <div id="print" v-if="$router.currentRoute.path === '/mybooking/confirmation'">
+      <div id="print-content" style="text-align: center;">
+        <div class="space"></div>
+        <div class="space"></div>
+        <p>Welcome to KidZania Singapore</p>
+        <div class="space"></div>
+        <div class="space"></div>
+        <h2>{{ stationNameUppers }}</h2>
+        <div class="space"></div>
+        <h3 class="roleTxt">{{ roleNames }}</h3>
+        <div class="space"></div>
+        <p>Date: {{ todayDate }}</p>
+        <div class="space"></div>
+        <p>Session Time:</p>
+        <h2>{{ sessionStartTimes }} - {{ sessionEndTimes }}</h2>
+        <div class="space"></div>
+        <p>Queue Number:</p>
+        <h1>{{ queueNums }}</h1>
+        <p>PleeZ report 5 mins earlier</p>
+        <p>PleeZ do not lose the receipt</p>
+        <p>Failure to comply may</p>
+        <p>result in denied entry</p>
+        <p>--------------------</p>
       </div>
-    </div>
-  </section>
-  <nuxt/>
-  <footer id="myFooter">
-    <figure class="image is-3by1 logo">
-      <img src="~/static/kzLogo.svg" class="staticLogo" />
-    </figure>
-  </footer>
-  <div id="print" v-if="$router.currentRoute.path === '/mybooking/confirmation'">
-    <div id="print-content" style="text-align: center;">
-      <div class="space"></div>
-      <div class="space"></div>
-      <p>Welcome to KidZania Singapore</p>
-      <div class="space"></div>
-      <div class="space"></div>
-      <h2>{{ stationNameUppers }}</h2>
-      <div class="space"></div>
-      <h3 class="roleTxt">{{ roleNames }}</h3>
-      <div class="space"></div>
-      <p>Date: {{ todayDate }}</p>
-      <div class="space"></div>
-      <p>Session Time:</p>
-      <h2>{{ sessionStartTimes }} - {{ sessionEndTimes }}</h2>
-      <div class="space"></div>
-      <p>Queue Number:</p>
-      <h1>{{ queueNums }}</h1>
-      <p>PleeZ report 5 mins earlier</p>
-      <p>PleeZ do not lose the receipt</p>
-      <p>Failure to comply may</p>
-      <p>result in denied entry</p>
-      <p>--------------------</p>
     </div>
   </div>
-</div>
 </template>
 
 <script>
-import jwtDecode from 'jwt-decode'
-import Cookie from 'js-cookie'
-import moment from "moment"
-import isEmpty from "~/plugins/dictionary-is-empty.js"
+import jwtDecode from "jwt-decode";
+import Cookie from "js-cookie";
+import moment from "moment";
+import isEmpty from "~/plugins/dictionary-is-empty.js";
+import { mapState } from "vuex";
+
 let scannedArray = [];
-let scannedID = '';
+let scannedID = "";
 
 function WebFormData(ssId, sId, rId, rfid, status) {
-  this.session_id = ssId,
-    this.station_id = sId,
-    this.role_id = rId,
-    this.rfid = rfid,
-    this.status = status
+  (this.session_id = ssId),
+    (this.station_id = sId),
+    (this.role_id = rId),
+    (this.rfid = rfid),
+    (this.status = status);
 }
 
 export default {
-  data() {
-    return {
-      booking: null,
-      bookingBeingMade: false
-    }
-  },
   computed: {
-    queueNums() {
-      if (this.booking) {
-        return this.$store.state.currQNum
-      }
-    },
+    ...mapState({
+      stationsList: state => state.stationsList,
+      bookingDetail: state => state.bookingDetail,
+      allBookingDetails: state => state.allBookingDetails,
+      scannedID: state => state.scannedID,
+      bookingCart: state => state.bookingCart,
+      auth: state => state.auth,
+      confirming: state => state.confirming,
+      pageName: state => state.pageName,
+      queueNums: state => state.currQNum
+    }),
     roleNames() {
       let self = this;
       if (this.booking && this.booking.station) {
-        let stationsList = self.$store.state.stationsList;
-        for (let station of stationsList) {
+        const stationsList = self.stationsList;
+        for (const station of stationsList) {
           if (station.station_id == this.booking.station.station_id) {
-            for (let role of station.roles) {
+            for (const role of station.roles) {
               if (role.role_id == this.booking.role) {
                 return role.role_name;
               }
@@ -111,158 +115,186 @@ export default {
       return moment(today).format("DD MMM YYYY");
     }
   },
+  data() {
+    return {
+      booking: null,
+      bookingBeingMade: false
+    };
+  },
   methods: {
     exitDialog() {
-      let self = this;
+      const self = this;
       self.bookingBeingMade = true;
       this.$dialog.confirm({
         title: `Exit`,
-        message: 'Would you like to <b>exit</b>?',
-        confirmText: 'Exit',
-        size: 'is-large',
-        type: 'is-danger',
+        message: "Would you like to <b>exit</b>?",
+        confirmText: "Exit",
+        size: "is-large",
+        type: "is-danger",
         onConfirm: () => {
-          self.$router.push('/');
+          self.$router.push("/");
           self.bookingBeingMade = false;
         },
-        onCancel: () => self.bookingBeingMade = false
+        onCancel: () => (self.bookingBeingMade = false)
       });
     },
     async confirmBooking() {
-      let self = this;
-      let bookingDetail = this.$store.state.bookingDetail;
-      this.booking = this.$store.state.bookingCart;
+      const self = this;
+      const bookingDetail = this.bookingDetail;
+      this.booking = this.bookingCart;
       this.bookingBeingMade = true;
-      console.log('Booking being made');
+      console.log("Booking being made");
 
       console.dir(bookingDetail);
-      if (!isEmpty(bookingDetail)) { //Reprint
-        let webFormData = new WebFormData(bookingDetail.session_id, bookingDetail.station_id, bookingDetail.role_id, self.$store.state.scannedID.toUpperCase(), "Cancelled");
-        let res = await self.$axios.$put('/bookings/cancelBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            })
+      if (!isEmpty(bookingDetail)) {
+        //Reprint
+        let webFormData = new WebFormData(
+          bookingDetail.session_id,
+          bookingDetail.station_id,
+          bookingDetail.role_id,
+          self.scannedID.toUpperCase(),
+          "Cancelled"
+        );
+        let res = await self.$axios
+          .$put("/bookings/cancelBooking", webFormData, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
           .catch(e => {
-            console.log(e)
+            console.log(e);
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh No! Your booking has <b>failed</b>. PleeZ try again.',
-              confirmText: 'Exit',
-              size: 'is-large',
-              type: 'is-danger',
-              onConfirm: () => self.$router.push('/')
+              message:
+                "Oh No! Your booking has <b>failed</b>. PleeZ try again.",
+              confirmText: "Exit",
+              size: "is-large",
+              type: "is-danger",
+              onConfirm: () => self.$router.push("/")
             });
             self.booking = null;
             self.bookingBeingMade = false;
-            self.$store.commit('setQNum', 0);
+            self.$store.commit("setQNum", 0);
             return;
           });
         console.log(res);
-        webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID.toUpperCase(), "Confirmed");
+        webFormData = new WebFormData(
+          self.bookingCart.timeSlot.session_id,
+          self.bookingCart.station.station_id,
+          self.bookingCart.role,
+          self.scannedID.toUpperCase(),
+          "Confirmed"
+        );
         console.dir(webFormData);
-        self.$axios.$post('/bookings/makeBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            })
+        self.$axios
+          .$post("/bookings/makeBooking", webFormData, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
           .then(res => {
-            this.$store.dispatch('addQNumAsync', {
+            this.$store.dispatch("addQNumAsync", {
               qNum: res.queue_no
-            })
+            });
           })
           .then(() => {
-            let printContents = document.getElementById("print-content").innerHTML;
+            let printContents = document.getElementById("print-content")
+              .innerHTML;
             window.onafterprint = function() {
               self.booking = null;
               self.bookingBeingMade = false;
-              self.$store.commit('setQNum', 0);
-              self.$router.push('/thankyou');
-            }
+              self.$store.commit("setQNum", 0);
+              self.$router.push("/thankyou");
+            };
             window.print();
           })
           .catch(e => {
-            console.log(e)
+            console.log(e);
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh no! Your booking has failed. Please try again',
-              confirmText: 'Exit',
-              size: 'is-large',
-              type: 'is-danger',
-              onConfirm: () => self.$router.push('/')
+              message: "Oh no! Your booking has failed. Please try again",
+              confirmText: "Exit",
+              size: "is-large",
+              type: "is-danger",
+              onConfirm: () => self.$router.push("/")
             });
             self.booking = null;
             self.bookingBeingMade = false;
-            self.$store.commit('setQNum', 0);
+            self.$store.commit("setQNum", 0);
             return;
           });
-      } else { //New booking
-        let webFormData = new WebFormData(self.$store.state.bookingCart.timeSlot.session_id, self.$store.state.bookingCart.station.station_id, self.$store.state.bookingCart.role, self.$store.state.scannedID, "Confirmed");
+      } else {
+        //New booking
+        let webFormData = new WebFormData(
+          self.bookingCart.timeSlot.session_id,
+          self.bookingCart.station.station_id,
+          self.bookingCart.role,
+          self.scannedID.toUpperCase(),
+          "Confirmed"
+        );
         console.dir(webFormData);
-        let res = await self.$axios.$post('/bookings/makeBooking',
-            webFormData, {
-              headers: {
-                'Content-Type': 'application/json'
-              }
-            })
+        let res = await self.$axios
+          .$post("/bookings/makeBooking", webFormData, {
+            headers: {
+              "Content-Type": "application/json"
+            }
+          })
           .then(res => {
-            this.$store.dispatch('addQNumAsync', {
+            this.$store.dispatch("addQNumAsync", {
               qNum: res.queue_no
-            })
+            });
           })
           .then(() => {
-            let printContents = document.getElementById("print-content").innerHTML;
+            let printContents = document.getElementById("print-content")
+              .innerHTML;
             window.onafterprint = function() {
               self.booking = null;
               self.bookingBeingMade = false;
-              self.$store.commit('setQNum', 0);
-              self.$router.push('/thankyou');
-            }
+              self.$store.commit("setQNum", 0);
+              self.$router.push("/thankyou");
+            };
             window.print();
           })
           .catch(e => {
-            console.log(e)
+            console.log(e);
             this.$dialog.alert({
               title: `Booking Failed`,
-              message: 'Oh no! Your booking has failed. Please try again',
-              confirmText: 'Exit',
-              size: 'is-large',
-              type: 'is-danger',
-              onConfirm: () => self.$router.push('/')
+              message: "Oh no! Your booking has failed. Please try again",
+              confirmText: "Exit",
+              size: "is-large",
+              type: "is-danger",
+              onConfirm: () => self.$router.push("/")
             });
             self.booking = null;
             self.bookingBeingMade = false;
-            self.$store.commit('setQNum', 0);
+            self.$store.commit("setQNum", 0);
             return;
           });
-
       }
     },
     async login() {
       try {
         let res = await this.$axios.post(`/auth/login`, {
-          username: 'guest',
-          password: 'password'
+          username: "guest",
+          password: "password"
         });
         if (res.status === 200) {
           const auth = res.data;
-          this.$store.commit('updateAuthState', auth);
-          Cookie.set('auth', auth);
-          this.$axios.setToken(auth.token, 'Bearer');
+          this.$store.commit("updateAuthState", auth);
+          Cookie.set("auth", auth);
+          this.$axios.setToken(auth.token, "Bearer");
         }
       } catch (err) {
-        let msg = 'Internal server error. Please contact Administrator.';
+        let msg = "Internal server error. Please contact Administrator.";
         if (err.response.data) {
-          msg = err.response.data.message
+          msg = err.response.data.message;
         }
         this.$dialog.alert({
           title: `Login Failed`,
           message: msg,
-          type: 'is-danger',
+          type: "is-danger",
           hasIcon: true,
-          iconPack: 'mdi'
+          iconPack: "mdi"
         });
       }
     }
@@ -272,12 +304,12 @@ export default {
     let timer;
 
     function timeOutUser() {
-      self.$router.push('/')
+      self.$router.push("/");
     }
 
     function resetTimer() {
-      if (self.$store.state.scannedID !== '') {
-        console.log('reset Timer is being called');
+      if (self.scannedID !== "") {
+        console.log("reset Timer is being called");
         clearTimeout(timer);
         timer = setTimeout(timeOutUser, 15000); // time is in milliseconds
       }
@@ -289,123 +321,129 @@ export default {
     document.onclick = resetTimer; // catches touchpad clicks as well
     document.onkeypress = resetTimer;
 
-    let token = this.$store.state.auth;
-    //console.log(token[0]);
-    //console.log(jwtDecode(token.token).exp)
-    //let decoded = jwtDecode(token.token);
-    let current_time = Date.now().valueOf() / 1000;
-    if (token === null) {
+    if (this.auth === null) {
       await self.login();
     }
-    // } else if (decoded.exp < current_time && decoded.exp !== undefined) {
-    //   self.login();
-    // }
 
     let stationList;
     let roleList;
 
-    if (this.$store.state.stationsList.length === 0) {
+    if (this.stationsList.length === 0) {
       //Retrieve Roles and store in roleList
-      roleList = await self.$axios.$get(`/roles`)
-        .catch(e => {
-          console.log(e);
-        });
-      console.dir(roleList);
+      roleList = await self.$axios.$get(`/roles`).catch(e => {
+        console.log(e);
+      });
       roleList = roleList[0];
       //Retrieve Stations and store in Vuex Store
       stationList = await this.$axios.$get(`/stations`);
-      for (let station of stationList) {
-        station.imagepath = process.env.API_URL + "/image/getStationImage/" + station.station_id;
-        let tempRoleList = [];
-        for (let role of roleList) {
+      for (const station of stationList) {
+        station.imagepath =
+          process.env.API_URL + "/image/getStationImage/" + station.station_id;
+        const tempRoleList = [];
+        for (const role of roleList) {
           if (role.station_id == station.station_id) {
-            role.imagepath = process.env.API_URL + "/image/getRoleImage/" + role.role_id;
+            role.imagepath =
+              process.env.API_URL + "/image/getRoleImage/" + role.role_id;
             tempRoleList.push(role);
           }
         }
         station.roles = tempRoleList;
-        self.$store.commit('addStation', station);
+        self.$store.commit("addStation", station);
       }
     }
 
     //Scanning Function
     window.onkeypress = async function(e) {
-      if (e.key === 'Enter' && !self.bookingBeingMade) {
-        scannedID = scannedArray.join('');
+      if (e.key === "Enter" && !self.bookingBeingMade) {
+        scannedID = scannedArray.join("");
         scannedID = scannedID.toUpperCase();
         scannedArray = [];
         console.dir(scannedID);
-        let prevScannedID = self.$store.state.scannedID.toUpperCase();
+        const prevScannedID = self.scannedID.toUpperCase();
         console.log(prevScannedID);
-        if (!self.$store.state.confirming && ((prevScannedID == '' && isEmpty(self.$store.state.bookingDetail)) || (prevScannedID !== '' && ((prevScannedID !== scannedID && self.$router.currentRoute.path !== '/mybooking') || (prevScannedID ===
-            scannedID && self.$router.currentRoute.path === '/'))))) {
-          for (let b of self.$store.state.allBookingDetails) {
-            self.$store.commit('popBookingDetails');
-          }
-          self.$store.commit('setScannedID', scannedID);
-          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
+        if (
+          !self.confirming &&
+          ((prevScannedID === "" && isEmpty(self.bookingDetail)) ||
+            (prevScannedID !== "" &&
+              ((prevScannedID !== scannedID &&
+                self.$router.currentRoute.path !== "/mybooking") ||
+                (prevScannedID === scannedID &&
+                  self.$router.currentRoute.path === "/"))))
+        ) {
+          self.$store.commit("popBookingDetails");
+          self.$store.commit("setScannedID", scannedID);
+          self.$store.commit("setBookingDetail", {});
+          const res = await self.$axios
+            .$get(`/bookings/rfid/${self.scannedID}`)
             .catch(e => {
               console.log(e);
             });
-          let booking = {};
+          const bookings = res;
           if (res !== undefined) {
-            let bookings = res;
-            for (let b of bookings) {
-              console.log(b)
-              self.$store.commit('addAllBookingDetails', b);
-              if (b.booking_status === 'Confirmed') {
-                booking = b;
+            for (const b of bookings) {
+              console.log(b);
+              self.$store.commit("addAllBookingDetails", b);
+              if (b.booking_status === "Confirmed") {
+                self.$store.commit("setBookingDetail", b);
               }
             }
           }
-          self.$store.commit('setBookingDetail', booking);
-          console.log(self.$store.state.bookingDetail);
           resetTimer();
           self.$router.push(`/mybooking`);
-        } else if (prevScannedID !== '' && prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking') {
-          console.log('Reload Page')
-          for (let b of self.$store.state.allBookingDetails) {
-            self.$store.commit('popBookingDetails');
-          }
-          self.$store.commit('setScannedID', scannedID);
-          let res = await self.$axios.$get(`/bookings/rfid/${self.$store.state.scannedID}`)
+        } else if (
+          prevScannedID !== "" &&
+          prevScannedID !== scannedID &&
+          self.$router.currentRoute.path === "/mybooking"
+        ) {
+          console.log("Reload Page");
+          self.$store.commit("popBookingDetails");
+          self.$store.commit("setScannedID", scannedID);
+          self.$store.commit("setBookingDetail", {});
+          let res = await self.$axios
+            .$get(`/bookings/rfid/${self.scannedID}`)
             .catch(e => {
               console.log(e);
             });
-          let booking = {}
           if (res !== undefined) {
-            let bookings = res;
-            for (let b of bookings) {
-              console.log(b)
-              self.$store.commit('addAllBookingDetails', b);
-              if (b.booking_status === 'Confirmed') {
-                booking = b;
+            const bookings = res;
+            for (const b of bookings) {
+              console.log(b);
+              self.$store.commit("addAllBookingDetails", b);
+              if (b.booking_status === "Confirmed") {
+                self.$store.commit("setBookingDetail", b);
               }
             }
           }
-          self.$store.commit('setBookingDetail', booking);
-          console.dir(self.$store.state.bookingDetail)
+          console.dir(self.bookingDetail);
           self.$router.push(`reload`);
-        } else if (prevScannedID === scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
+        } else if (
+          prevScannedID === scannedID &&
+          self.$router.currentRoute.path === "/mybooking/confirmation" &&
+          self.confirming === true
+        ) {
           self.confirmBooking();
-        } else if (prevScannedID !== scannedID && self.$router.currentRoute.path === '/mybooking/confirmation' && self.$store.state.confirming === true) {
-          self.$store.commit('setConfirming', false);
+        } else if (
+          prevScannedID !== scannedID &&
+          self.$router.currentRoute.path === "/mybooking/confirmation" &&
+          self.confirming === true
+        ) {
+          self.$store.commit("setConfirming", false);
           self.$dialog.alert({
-            title: 'Error',
-            message: 'You have scanned a different bracelet',
-            confirmText: 'Exit',
-            size: 'is-large',
-            type: 'is-danger',
-            onConfirm: () => self.$router.push('/')
-          })
+            title: "Error",
+            message: "You have scanned a different bracelet",
+            confirmText: "Exit",
+            size: "is-large",
+            type: "is-danger",
+            onConfirm: () => self.$router.push("/")
+          });
         }
-        scannedID = '';
+        scannedID = "";
       } else if (!self.bookingBeingMade) {
         scannedArray.push(e.key);
       }
     };
   }
-}
+};
 </script>
 
 <style>
@@ -423,7 +461,7 @@ html {
   user-select: none;
   /* Non-prefixed version, currently
      supported by Chrome and Opera */
-  background-color: #F8FAF4;
+  background-color: #f8faf4;
   overflow: hidden;
   height: 100%;
 }
@@ -459,7 +497,7 @@ body,
 }
 
 .hero {
-  background-color: #03A9F4;
+  background-color: #03a9f4;
 }
 
 .myHero {
@@ -485,7 +523,7 @@ body,
 }
 
 .myContainer {
-  background-color: #FFF;
+  background-color: #fff;
   height: 90%;
   width: 85%;
   margin: 4% auto;
