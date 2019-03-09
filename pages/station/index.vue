@@ -1,26 +1,28 @@
 <template>
-<div id="app">
-  <section class="myContainer mySection container columns is-multiline">
-
-    <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
-      <div @click="addStationToCart(station)" class="stationBox">
-        <img :src="`${station.imagepath}`" />
-        <!-- <img class="ellipse" src="~/static/images/ellipse.png" height="228" width="228" /> -->
-        <a class="button is-danger is-rounded is-medium">{{station.station_name}}</a>
+  <div id="app">
+    <section class="myContainer mySection container columns is-multiline">
+      <div class="column is-one-third" v-for="(station, index) in dataList" :key="index">
+        <div @click="addStationToCart(station)" class="stationBox">
+          <img :src="`${station.imagepath}`">
+          <a class="button is-danger is-rounded is-medium">{{station.station_name}}</a>
+        </div>
       </div>
-    </div>
-
-  </section>
-</div>
+    </section>
+  </div>
 </template>
 
 <script>
 export default {
+  data() {
+    return {
+      dataList: []
+    };
+  },
   methods: {
     addStationToCart(station) {
-      this.$store.commit('addStationToCart', station);
+      this.$store.commit("addStationToCart", station);
       this.$router.push({
-        name: 'role-id',
+        name: "role-id",
         query: {
           stationID: station.station_id
         }
@@ -28,22 +30,17 @@ export default {
     }
   },
   mounted() {
-    let self = this;
-    let stations = this.$store.state.stationsList;
+    const self = this;
+    const stations = this.$store.state.stationsList;
     console.log(stations);
     for (let station in stations) {
       if (stations[station].is_active === 1) {
         self.dataList.push(stations[station]);
       }
     }
-    this.$store.commit('setPageTitle', 'Select Station');
-  },
-  data() {
-    return {
-      dataList: []
-    }
+    this.$store.commit("setPageTitle", "Select Station");
   }
-}
+};
 </script>
 
 <style scoped>

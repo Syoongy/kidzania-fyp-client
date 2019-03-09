@@ -31,28 +31,34 @@
 
 <script>
 import isEmpty from "~/plugins/dictionary-is-empty.js";
+import { mapState } from "vuex";
 
 export default {
+  computed: {
+    ...mapState({
+      bookingCart: state => state.bookingCart,
+      bookingDetail: state => state.bookingDetail,
+      allBookings: state => state.allBookingDetails
+    })
+  },
   data() {
     return {
       dataList: [],
       stationData: {},
-      limitList: [],
-      bookingDetail: this.$store.state.bookingDetail,
-      allBookings: this.$store.state.allBookingDetails
+      limitList: []
     };
   },
   methods: {
     getData(station) {
       const self = this;
-      for (let role of station.roles) {
+      for (const role of station.roles) {
         self.dataList.push(role);
       }
     },
     addRoleToCart(role) {
       let check = true;
       let noBooked = 0;
-      for (let b of this.allBookings) {
+      for (const b of this.allBookings) {
         if (b.role_id === role.role_id && b.booking_status === "Admitted") {
           noBooked += 1;
         }
@@ -61,7 +67,7 @@ export default {
         if (
           this.limitList.find(i => i.role_id === role.role_id) !== undefined
         ) {
-          let roleLimit = this.limitList.find(i => i.role_id === role.role_id)
+          const roleLimit = this.limitList.find(i => i.role_id === role.role_id)
             .booking_limit;
           if (noBooked >= roleLimit && roleLimit !== 0) {
             check = false;
@@ -77,14 +83,14 @@ export default {
       let check = true;
       let noBooked = 0;
       console.log(this.allBookings);
-      for (let b of this.allBookings) {
+      for (const b of this.allBookings) {
         if (b.role_id === role_id && b.booking_status === "Admitted") {
           noBooked += 1;
         }
       }
       if (this.limitList !== undefined) {
         if (this.limitList.find(i => i.role_id === role_id) !== undefined) {
-          let roleLimit = this.limitList.find(i => i.role_id === role_id)
+          const roleLimit = this.limitList.find(i => i.role_id === role_id)
             .booking_limit;
           if (noBooked >= roleLimit && roleLimit !== 0) {
             check = false;
@@ -98,8 +104,8 @@ export default {
     }
   },
   async mounted() {
-    const currStation = this.$store.state.bookingCart.station;
-    let res = await this.$axios
+    const currStation = this.bookingCart.station;
+    const res = await this.$axios
       .$get(`/limit/checkRoleLimit/${currStation.station_id}`)
       .catch(e => {
         console.log(e);

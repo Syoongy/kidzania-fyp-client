@@ -6,7 +6,7 @@
 <script>
 export default {
   mounted() {
-    let self = this;
+    const self = this;
     const loadingComponent = this.$loading.open({
       container: this.$refs.loadingPage
     });
