@@ -1,31 +1,36 @@
 <template>
-<div id="app">
-  <section class="container myContainer">
-    <div class="level myLevel">
-      <div class="level-item">
-        <p class="is-size-2 has-text-weight-bold has-text-centered"> I want to <br /> roleplay as a(n) : </p>
-      </div>
+  <div id="app">
+    <section class="container myContainer">
+      <div class="level myLevel">
+        <div class="level-item">
+          <p class="is-size-2 has-text-weight-bold has-text-centered">I want to
+            <br>roleplay as a(n) :
+          </p>
+        </div>
 
-      <div class="level-item" v-for="(role, index) in dataList" :key="index">
-        <img :src="`${role.imagepath}`" class="is-4by3" />
-        <a class="button is-danger is-rounded is-medium" @click.prevent="addRoleToCart(role)" :disabled="isDisable(role.role_id)">{{role.role_name}}</a>
+        <div class="level-item" v-for="(role, index) in dataList" :key="index">
+          <img :src="`${role.imagepath}`" class="is-4by3">
+          <a
+            class="button is-danger is-rounded is-medium"
+            @click.prevent="addRoleToCart(role)"
+            :disabled="isDisable(role.role_id)"
+          >{{role.role_name}}</a>
+        </div>
       </div>
-
-    </div>
-    <hr />
-    <div class="level" id="stationDetails">
-      <div class="level-item">
-        <img :src="`${stationData.imagepath}`" class="is-square" />
-        <p class="is-size-5 has-text-weight-bold">{{stationData.station_name}}</p>
+      <hr>
+      <div class="level" id="stationDetails">
+        <div class="level-item">
+          <img :src="`${stationData.imagepath}`" class="is-square">
+          <p class="is-size-5 has-text-weight-bold">{{stationData.station_name}}</p>
+        </div>
+        <p id="description" class="has-text-left level-item is-size-4">{{stationData.description}}</p>
       </div>
-      <p id="description" class="has-text-left level-item is-size-4">{{stationData.description}}</p>
-    </div>
-  </section>
-</div>
+    </section>
+  </div>
 </template>
 
 <script>
-import isEmpty from "~/plugins/dictionary-is-empty.js"
+import isEmpty from "~/plugins/dictionary-is-empty.js";
 
 export default {
   data() {
@@ -35,11 +40,11 @@ export default {
       limitList: [],
       bookingDetail: this.$store.state.bookingDetail,
       allBookings: this.$store.state.allBookingDetails
-    }
+    };
   },
   methods: {
     getData(station) {
-      let self = this;
+      const self = this;
       for (let role of station.roles) {
         self.dataList.push(role);
       }
@@ -48,37 +53,41 @@ export default {
       let check = true;
       let noBooked = 0;
       for (let b of this.allBookings) {
-        if (b.role_id === role.role_id && b.booking_status === 'Admitted') {
+        if (b.role_id === role.role_id && b.booking_status === "Admitted") {
           noBooked += 1;
         }
       }
       if (this.limitList !== undefined) {
-        if (this.limitList.find(i => i.role_id === role.role_id) !== undefined) {
-          let roleLimit = this.limitList.find(i => i.role_id === role.role_id).booking_limit;
-          if (noBooked >= roleLimit) {
-            check = false
+        if (
+          this.limitList.find(i => i.role_id === role.role_id) !== undefined
+        ) {
+          let roleLimit = this.limitList.find(i => i.role_id === role.role_id)
+            .booking_limit;
+          if (noBooked >= roleLimit && roleLimit !== 0) {
+            check = false;
           }
         }
       }
       if (check === true) {
-        this.$store.commit('addRoleToCart', role.role_id);
-        this.$router.push('timeslot');
+        this.$store.commit("addRoleToCart", role.role_id);
+        this.$router.push("timeslot");
       }
     },
     isDisable(role_id) {
       let check = true;
       let noBooked = 0;
-      console.log(this.allBookings)
+      console.log(this.allBookings);
       for (let b of this.allBookings) {
-        if (b.role_id === role_id && b.booking_status === 'Admitted') {
+        if (b.role_id === role_id && b.booking_status === "Admitted") {
           noBooked += 1;
         }
       }
       if (this.limitList !== undefined) {
         if (this.limitList.find(i => i.role_id === role_id) !== undefined) {
-          let roleLimit = this.limitList.find(i => i.role_id === role_id).booking_limit;
-          if (noBooked >= roleLimit) {
-            check = false
+          let roleLimit = this.limitList.find(i => i.role_id === role_id)
+            .booking_limit;
+          if (noBooked >= roleLimit && roleLimit !== 0) {
+            check = false;
           }
         }
       }
@@ -89,19 +98,20 @@ export default {
     }
   },
   async mounted() {
-    let currStation = this.$store.state.bookingCart.station;
-    let res = await this.$axios.$get(`/limit/checkRoleLimit/${currStation.station_id}`)
+    const currStation = this.$store.state.bookingCart.station;
+    let res = await this.$axios
+      .$get(`/limit/checkRoleLimit/${currStation.station_id}`)
       .catch(e => {
         console.log(e);
       });
-    console.log(res)
+    console.log(res);
     this.limitList = res;
     console.dir(currStation);
     this.getData(currStation);
     this.stationData = currStation;
-    this.$store.commit('setPageTitle', 'Select Role');
+    this.$store.commit("setPageTitle", "Select Role");
   }
-}
+};
 </script>
 
 <style scoped>
@@ -111,7 +121,7 @@ export default {
 }
 
 #text {
-  color: #4D4D4D;
+  color: #4d4d4d;
   font-size: 42px;
   font-weight: bold;
   text-align: center;
@@ -136,13 +146,13 @@ a {
 
 #selectedStation {
   font-weight: bold;
-  color: #4D4D4D;
+  color: #4d4d4d;
   font-size: 20px;
   padding-top: 20px;
 }
 
 #description {
-  color: #4D4D4D;
+  color: #4d4d4d;
   width: 50% !important;
   word-wrap: break-word;
   padding-right: 7rem;
